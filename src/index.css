@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Outfit:wght@500;600;700&display=swap');
+
+:root {
+  --ink: #10231f;
+  --ink-soft: #3d524c;
+  --muted: #6b7f78;
+  --line: #d5e2dc;
+  --line-strong: #b7cdc4;
+  --surface: #ffffff;
+  --surface-2: #f3f8f5;
+  --surface-3: #e8f1ec;
+  --accent: #0f7a68;
+  --accent-strong: #0b5f51;
+  --accent-soft: #d8f0e8;
+  --danger: #b42318;
+  --danger-bg: #fef3f2;
+  --danger-line: #fecdca;
+  --shadow: 0 10px 30px rgba(16, 35, 31, 0.07);
+  --radius: 1rem;
+  --bottom-nav-h: 4.25rem;
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --bg:
+    radial-gradient(ellipse 70% 45% at 0% -10%, #c8ebe0 0%, transparent 55%),
+    radial-gradient(ellipse 55% 40% at 100% 0%, #d7e6f2 0%, transparent 50%),
+    linear-gradient(180deg, #f5faf7 0%, #eef4f1 100%);
+
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+input,
+select,
+textarea,
+button {
+  max-width: 100%;
+  font: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
