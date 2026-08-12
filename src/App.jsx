@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3005'
-// const API_URL = import.meta.env.VITE_API_URL || 'https://41b3-172-216-225-39.ngrok-free.app'
+const API_URL = import.meta.env.VITE_API_URL;
 
 const money = new Intl.NumberFormat('es-MX', {
   style: 'currency',
