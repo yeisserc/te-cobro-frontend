@@ -9,6 +9,19 @@ const money = new Intl.NumberFormat('es-MX', {
   maximumFractionDigits: 2,
 })
 
+const PHONE_CODES = ['0412', '0414', '0416', '0422', '0424', '0426']
+
+/** Muestra el código local con 0 (412 → 0412) para el UI. */
+function formatPhoneCode(code) {
+  if (!code) return ''
+  return code.startsWith('0') ? code : `0${code}`
+}
+
+function formatClientPhone(client) {
+  if (!client?.phoneCode || !client?.phoneNumber) return '-'
+  return `${formatPhoneCode(client.phoneCode)} ${client.phoneNumber}`
+}
+
 const clientInitialForm = {
   firstName: '',
   lastName: '',
@@ -281,7 +294,7 @@ function App() {
       firstName: client.firstName,
       lastName: client.lastName,
       nickname: client.nickname || '',
-      phoneCode: client.phoneCode || '',
+      phoneCode: formatPhoneCode(client.phoneCode),
       phoneNumber: client.phoneNumber || '',
     })
     setClientEditId(client.id)
@@ -671,7 +684,7 @@ function App() {
                       }
                     >
                       <option value="">Código</option>
-                      {['0412', '0414', '0416', '0422', '0424', '0426'].map((code) => (
+                      {PHONE_CODES.map((code) => (
                         <option key={code} value={code}>
                           {code}
                         </option>
@@ -732,11 +745,7 @@ function App() {
                     <dl className="data-card-fields">
                       <div>
                         <dt>Teléfono</dt>
-                        <dd>
-                          {client.phoneCode && client.phoneNumber
-                            ? `${client.phoneCode} ${client.phoneNumber}`
-                            : '-'}
-                        </dd>
+                        <dd>{formatClientPhone(client)}</dd>
                       </div>
                     </dl>
                     <div className="table-actions">
@@ -777,9 +786,7 @@ function App() {
                         <td>{client.lastName}</td>
                         <td>{client.nickname || '-'}</td>
                         <td>
-                          {client.phoneCode && client.phoneNumber
-                            ? `${client.phoneCode} ${client.phoneNumber}`
-                            : '-'}
+                          {formatClientPhone(client)}
                         </td>
                         <td>
                           <div className="table-actions">
