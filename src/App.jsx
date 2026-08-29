@@ -22,6 +22,54 @@ function formatClientPhone(client) {
   return `${formatPhoneCode(client.phoneCode)} ${client.phoneNumber}`
 }
 
+/** Parsea fechas ISO de la API (UTC) para mostrarlas en hora local del navegador. */
+function parseApiDate(value) {
+  if (!value) return null
+  if (value instanceof Date) return value
+
+  const str = String(value).trim()
+  if (!str) return null
+
+  // ISO sin zona horaria: la API guarda UTC, interpretar como tal.
+  const isoWithoutTz = /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}/
+  const hasTz = /(?:Z|[+-]\d{2}:\d{2})$/i.test(str)
+  if (isoWithoutTz.test(str) && !hasTz) {
+    return new Date(str.replace(' ', 'T') + (str.includes('T') ? 'Z' : ''))
+  }
+
+  return new Date(str)
+}
+
+function formatDateTime(value) {
+  const date = parseApiDate(value)
+  if (!date || Number.isNaN(date.getTime())) return '-'
+
+  return date.toLocaleString(undefined, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function paymentStatusLabel(status) {
+  if (status === 'verified') return 'Verificado'
+  if (status === 'rejected') return 'Rechazado'
+  if (status === 'pending') return 'Pendiente'
+  return status || 'Sin pago'
+}
+
+function sendStatus(send) {
+  const latest = send.payments?.[0]
+  return latest?.status || 'sent'
+}
+
+function sendStatusLabel(send) {
+  const latest = send.payments?.[0]
+  return latest ? paymentStatusLabel(latest.status) : 'Enviado'
+}
+
 const clientInitialForm = {
   firstName: '',
   lastName: '',
@@ -152,6 +200,10 @@ function App() {
   const [bankForm, setBankForm] = useState({ bankUsername: '', bankPassword: '' })
   const [bankLoading, setBankLoading] = useState(false)
 
+  const [historyClient, setHistoryClient] = useState(null)
+  const [historyData, setHistoryData] = useState(null)
+  const [historyLoading, setHistoryLoading] = useState(false)
+
   const clientNameById = useMemo(() => {
     return clients.reduce((acc, client) => {
       acc[client.id] = `${client.firstName} ${client.lastName}`.trim()
@@ -219,6 +271,8 @@ function App() {
     setBankForm({ bankUsername: '', bankPassword: '' })
     setAuthForm({ email: '', password: '' })
     setAuthMode('login')
+    setHistoryClient(null)
+    setHistoryData(null)
   }
 
   async function handleAuthSubmit(event) {
@@ -299,6 +353,30 @@ function App() {
     })
     setClientEditId(client.id)
     setActiveView('clients')
+  }
+
+  async function handleOpenClientHistory(client) {
+    setError('')
+    setSuccess('')
+    setHistoryClient(client)
+    setHistoryData(null)
+    setHistoryLoading(true)
+    setActiveView('clients')
+
+    try {
+      const data = await apiRequest(`clients/${client.id}/payment-history`)
+      setHistoryData(data)
+    } catch (requestError) {
+      setError(requestError.message)
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
+
+  function handleCloseClientHistory() {
+    setHistoryClient(null)
+    setHistoryData(null)
+    setHistoryLoading(false)
   }
 
   async function handleDeleteClient(clientId) {
@@ -432,11 +510,22 @@ function App() {
   }
 
   const hasClients = clients.length > 0
+  const historyClientName = historyClient
+    ? `${historyClient.firstName} ${historyClient.lastName}`.trim()
+    : ''
   const sectionTitle =
-    activeView === 'clients' ? 'Clientes' : activeView === 'collections' ? 'Cobranza' : 'Cuenta bancaria'
+    activeView === 'clients'
+      ? historyClient
+        ? historyClientName
+        : 'Clientes'
+      : activeView === 'collections'
+        ? 'Cobranza'
+        : 'Cuenta bancaria'
   const sectionHint =
     activeView === 'clients'
-      ? 'Registra y administra tu cartera de clientes.'
+      ? historyClient
+        ? 'Historial de envíos y pagos agrupado por cobranza.'
+        : 'Registra y administra tu cartera de clientes.'
       : activeView === 'collections'
         ? 'Controla deudas, cuotas y frecuencias de cobro.'
         : 'Configura el usuario y clave de tu banca en línea para verificar pagos.'
@@ -554,7 +643,10 @@ function App() {
               <button
                 type="button"
                 className={`nav-pill ${activeView === 'clients' ? 'active' : ''}`}
-                onClick={() => setActiveView('clients')}
+                onClick={() => {
+                  handleCloseClientHistory()
+                  setActiveView('clients')
+                }}
               >
                 <IconClients className="nav-icon" />
                 Clientes
@@ -562,7 +654,10 @@ function App() {
               <button
                 type="button"
                 className={`nav-pill ${activeView === 'collections' ? 'active' : ''}`}
-                onClick={() => setActiveView('collections')}
+                onClick={() => {
+                  handleCloseClientHistory()
+                  setActiveView('collections')
+                }}
               >
                 <IconCollections className="nav-icon" />
                 Cobranza
@@ -570,7 +665,10 @@ function App() {
               <button
                 type="button"
                 className={`nav-pill ${activeView === 'bank' ? 'active' : ''}`}
-                onClick={() => setActiveView('bank')}
+                onClick={() => {
+                  handleCloseClientHistory()
+                  setActiveView('bank')
+                }}
               >
                 <IconBank className="nav-icon" />
                 Banco
@@ -589,10 +687,17 @@ function App() {
           </div>
           <div className="intro-meta">
             {activeView === 'clients' ? (
-              <div className="meta-stat">
-                <span className="meta-label">Clientes</span>
-                <strong>{clients.length}</strong>
-              </div>
+              historyClient ? (
+                <div className="meta-stat">
+                  <span className="meta-label">Cobranzas</span>
+                  <strong>{historyData?.collections?.length ?? 0}</strong>
+                </div>
+              ) : (
+                <div className="meta-stat">
+                  <span className="meta-label">Clientes</span>
+                  <strong>{clients.length}</strong>
+                </div>
+              )
             ) : activeView === 'collections' ? (
               <>
                 <div className="meta-stat">
@@ -626,6 +731,153 @@ function App() {
         ) : null}
 
         {activeView === 'clients' ? (
+          historyClient ? (
+          <div className="workspace" key="client-history-workspace">
+            <section className="panel">
+              <div className="panel-head">
+                <h2>Historial de pagos</h2>
+                <p>
+                  {formatClientPhone(historyClient)}
+                  {historyClient.nickname ? ` · ${historyClient.nickname}` : ''}
+                </p>
+              </div>
+              <div className="actions-row">
+                <button type="button" className="btn-ghost" onClick={handleCloseClientHistory}>
+                  Volver a clientes
+                </button>
+              </div>
+            </section>
+
+            {historyLoading ? (
+              <section className="panel">
+                <p className="empty-hint">Cargando historial...</p>
+              </section>
+            ) : !historyData?.collections?.length ? (
+              <section className="panel">
+                <p className="empty-hint">Este cliente todavía no tiene cobranzas.</p>
+              </section>
+            ) : (
+              historyData.collections.map((collection) => (
+                <section key={collection.id} className="panel history-collection">
+                  <div className="panel-head">
+                    <h2>{collection.concept}</h2>
+                    <p>
+                      {collection.frequency}
+                      {collection.collectionDay ? ` · Día ${collection.collectionDay}` : ''}
+                    </p>
+                  </div>
+                  <dl className="data-card-fields data-card-fields-grid history-summary">
+                    <div>
+                      <dt>Deuda total</dt>
+                      <dd>{money.format(collection.totalDebt)}</dd>
+                    </div>
+                    <div>
+                      <dt>Deuda actual</dt>
+                      <dd className="accent-value">{money.format(collection.currentDebt)}</dd>
+                    </div>
+                    <div>
+                      <dt>Cuotas</dt>
+                      <dd>
+                        {collection.currentInstallment} / {collection.installments}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>Envíos</dt>
+                      <dd>{collection.sends.length}</dd>
+                    </div>
+                  </dl>
+
+                  {collection.sends.length === 0 ? (
+                    <p className="empty-hint">Aún no se ha enviado ninguna cuota de esta cobranza.</p>
+                  ) : (
+                    <>
+                      <div className="mobile-list">
+                        {collection.sends.map((send) => {
+                          const latestPayment = send.payments?.[0]
+                          return (
+                            <article key={send.id} className="data-card">
+                              <div className="data-card-header">
+                                <div className="data-card-title">
+                                  <h3>Cuota {send.installmentNumber}</h3>
+                                  <p className="data-card-concept">{formatDateTime(send.sentAt)}</p>
+                                </div>
+                                <span className={`status-chip status-${sendStatus(send)}`}>
+                                  {sendStatusLabel(send)}
+                                </span>
+                              </div>
+                              <dl className="data-card-fields data-card-fields-grid">
+                                <div>
+                                  <dt>Monto USD</dt>
+                                  <dd>{money.format(send.amountUsd)}</dd>
+                                </div>
+                                <div>
+                                  <dt>Monto Bs</dt>
+                                  <dd>{Number(send.amountBs).toFixed(2)}</dd>
+                                </div>
+                                <div>
+                                  <dt>Referencia</dt>
+                                  <dd>{latestPayment?.referenceNumber || '-'}</dd>
+                                </div>
+                                <div>
+                                  <dt>Pago</dt>
+                                  <dd>
+                                    {latestPayment
+                                      ? `${money.format(latestPayment.amount)} · ${formatDateTime(latestPayment.createdAt)}`
+                                      : 'Sin pago registrado'}
+                                  </dd>
+                                </div>
+                              </dl>
+                            </article>
+                          )
+                        })}
+                      </div>
+
+                      <div className="table-wrap desktop-only">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>Cuota</th>
+                              <th>Enviado</th>
+                              <th>Monto USD</th>
+                              <th>Monto Bs</th>
+                              <th>Estado</th>
+                              <th>Referencia</th>
+                              <th>Pago</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {collection.sends.map((send) => {
+                              const latestPayment = send.payments?.[0]
+                              return (
+                                <tr key={send.id}>
+                                  <td>{send.installmentNumber}</td>
+                                  <td>{formatDateTime(send.sentAt)}</td>
+                                  <td>{money.format(send.amountUsd)}</td>
+                                  <td>{Number(send.amountBs).toFixed(2)}</td>
+                                  <td>
+                                    <span className={`status-chip status-${sendStatus(send)}`}>
+                                      {sendStatusLabel(send)}
+                                    </span>
+                                  </td>
+                                  <td>{latestPayment?.referenceNumber || '-'}</td>
+                                  <td>
+                                    {latestPayment
+                                      ? `${money.format(latestPayment.amount)} · ${formatDateTime(latestPayment.createdAt)}`
+                                      : 'Sin pago'}
+                                  </td>
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
+                </section>
+              ))
+            )}
+          </div>
+          ) : (
           <div className="workspace" key="clients-workspace">
             <section className="panel">
               <div className="panel-head">
@@ -727,7 +979,11 @@ function App() {
 
               <div className="mobile-list">
                 {clients.map((client) => (
-                  <article key={client.id} className="data-card">
+                  <article
+                    key={client.id}
+                    className="data-card data-card-clickable"
+                    onClick={() => handleOpenClientHistory(client)}
+                  >
                     <div className="data-card-header">
                       <div className="avatar" aria-hidden="true">
                         {(client.firstName?.[0] || '?').toUpperCase()}
@@ -748,7 +1004,7 @@ function App() {
                         <dd>{formatClientPhone(client)}</dd>
                       </div>
                     </dl>
-                    <div className="table-actions">
+                    <div className="table-actions" onClick={(event) => event.stopPropagation()}>
                       <button
                         type="button"
                         className="table-btn"
@@ -781,7 +1037,11 @@ function App() {
                   </thead>
                   <tbody>
                     {clients.map((client) => (
-                      <tr key={client.id}>
+                      <tr
+                        key={client.id}
+                        className="clickable-row"
+                        onClick={() => handleOpenClientHistory(client)}
+                      >
                         <td>{client.firstName}</td>
                         <td>{client.lastName}</td>
                         <td>{client.nickname || '-'}</td>
@@ -789,7 +1049,7 @@ function App() {
                           {formatClientPhone(client)}
                         </td>
                         <td>
-                          <div className="table-actions">
+                          <div className="table-actions" onClick={(event) => event.stopPropagation()}>
                             <button
                               type="button"
                               className="table-btn"
@@ -813,6 +1073,7 @@ function App() {
               </div>
             </section>
           </div>
+          )
         ) : activeView === 'collections' ? (
           <div className="workspace" key="collections-workspace">
             <section className="panel">
@@ -1245,7 +1506,10 @@ function App() {
         <button
           type="button"
           className={`bottom-nav-item ${activeView === 'clients' ? 'active' : ''}`}
-          onClick={() => setActiveView('clients')}
+          onClick={() => {
+            handleCloseClientHistory()
+            setActiveView('clients')
+          }}
         >
           <IconClients className="bottom-nav-icon" />
           <span>Clientes</span>
@@ -1253,7 +1517,10 @@ function App() {
         <button
           type="button"
           className={`bottom-nav-item ${activeView === 'collections' ? 'active' : ''}`}
-          onClick={() => setActiveView('collections')}
+          onClick={() => {
+            handleCloseClientHistory()
+            setActiveView('collections')
+          }}
         >
           <IconCollections className="bottom-nav-icon" />
           <span>Cobranza</span>
@@ -1261,7 +1528,10 @@ function App() {
         <button
           type="button"
           className={`bottom-nav-item ${activeView === 'bank' ? 'active' : ''}`}
-          onClick={() => setActiveView('bank')}
+          onClick={() => {
+            handleCloseClientHistory()
+            setActiveView('bank')
+          }}
         >
           <IconBank className="bottom-nav-icon" />
           <span>Banco</span>
