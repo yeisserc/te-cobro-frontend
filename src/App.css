@@ -150,6 +150,7 @@
   cursor: pointer;
   transition: background 180ms ease, color 180ms ease, transform 180ms ease;
   -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
 }
 
 .nav-pill:hover {
@@ -333,6 +334,46 @@
   margin-top: 0.15rem;
 }
 
+.page-actions {
+  margin-bottom: 0.85rem;
+}
+
+.panel-head-with-back {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: 0.05rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.back-link:hover {
+  background: var(--surface-3);
+  border-color: var(--line-strong);
+}
+
+.back-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.mobile-only {
+  display: block;
+}
+
 .btn-primary,
 .btn-ghost {
   width: 100%;
@@ -343,6 +384,15 @@
   transition: transform 160ms ease, background 160ms ease, border-color 160ms ease,
     opacity 160ms ease;
   -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+a.btn-primary,
+a.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary {
@@ -668,11 +718,9 @@ tbody tr:hover {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.2rem;
   padding: 0.4rem 0.55rem calc(0.4rem + env(safe-area-inset-bottom));
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  background: var(--surface);
   border-top: 1px solid var(--line);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 -8px 28px rgba(16, 35, 31, 0.06);
+  box-shadow: 0 -8px 28px rgba(16, 35, 31, 0.08);
 }
 
 .bottom-nav-item {
@@ -693,6 +741,7 @@ tbody tr:hover {
   cursor: pointer;
   transition: color 180ms ease, background 180ms ease, transform 180ms ease;
   -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
 }
 
 .bottom-nav-item:active {
@@ -822,6 +871,18 @@ tbody tr:hover {
 
   .desktop-only {
     display: block;
+  }
+
+  .mobile-only {
+    display: none;
+  }
+
+  .page-actions {
+    display: none;
+  }
+
+  .workspace-list-only {
+    grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
   }
 
   table {
