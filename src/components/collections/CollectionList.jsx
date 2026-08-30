@@ -3,6 +3,7 @@ import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
 import { money } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
+import { CollectionSendActions } from './CollectionSendActions'
 
 export function CollectionList({ showCreateButton = false }) {
   const navigate = useNavigate()
@@ -67,6 +68,7 @@ export function CollectionList({ showCreateButton = false }) {
                 <dd>{item.collectionDay || '-'}</dd>
               </div>
             </dl>
+            <CollectionSendActions collection={item} />
             <div className="table-actions">
               <button
                 type="button"
@@ -99,6 +101,7 @@ export function CollectionList({ showCreateButton = false }) {
               <th>Cuota actual</th>
               <th>Frecuencia</th>
               <th>Día(s)</th>
+              <th>Envío</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -113,6 +116,9 @@ export function CollectionList({ showCreateButton = false }) {
                 <td>{item.currentInstallment}</td>
                 <td>{item.frequency}</td>
                 <td>{item.collectionDay || '-'}</td>
+                <td>
+                  <CollectionSendActions collection={item} />
+                </td>
                 <td>
                   <div className="table-actions">
                     <button

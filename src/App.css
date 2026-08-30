@@ -667,6 +667,33 @@ tbody tr:hover {
   color: var(--danger);
 }
 
+.table-btn.accent {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+
+.table-btn.accent:hover {
+  background: color-mix(in srgb, var(--accent-soft) 70%, var(--accent) 30%);
+  color: var(--accent-strong);
+}
+
+.table-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.collection-send-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.55rem;
+}
+
+.collection-send-actions .table-btn {
+  flex: 1 1 calc(50% - 0.2rem);
+}
+
 .error-banner {
   margin: 0 0 0.9rem;
   color: var(--danger);
