@@ -1,9 +1,26 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useAppData } from '../../context/AppDataContext'
 import { ROUTES } from '../../lib/routes'
 import { IconBank, IconClients, IconCollections } from '../icons/NavIcons'
 
+function useCollectionsNavRefresh() {
+  const { pathname } = useLocation()
+  const { loadCollections, setError } = useAppData()
+
+  return async function refreshCollectionsIfActive() {
+    if (!pathname.startsWith(ROUTES.collections)) return
+
+    try {
+      await loadCollections()
+    } catch (requestError) {
+      setError(requestError.message)
+    }
+  }
+}
+
 export function TopNav() {
   const { pathname } = useLocation()
+  const refreshCollections = useCollectionsNavRefresh()
 
   return (
     <nav className="top-nav" aria-label="Navegacion principal">
@@ -17,6 +34,7 @@ export function TopNav() {
       <Link
         to={ROUTES.collections}
         className={`nav-pill ${pathname.startsWith(ROUTES.collections) ? 'active' : ''}`}
+        onClick={refreshCollections}
       >
         <IconCollections className="nav-icon" />
         Cobranza
@@ -34,6 +52,7 @@ export function TopNav() {
 
 export function BottomNav() {
   const { pathname } = useLocation()
+  const refreshCollections = useCollectionsNavRefresh()
 
   return (
     <nav className="bottom-nav" aria-label="Navegacion movil">
@@ -47,6 +66,7 @@ export function BottomNav() {
       <Link
         to={ROUTES.collections}
         className={`bottom-nav-item ${pathname.startsWith(ROUTES.collections) ? 'active' : ''}`}
+        onClick={refreshCollections}
       >
         <IconCollections className="bottom-nav-icon" />
         <span>Cobranza</span>
