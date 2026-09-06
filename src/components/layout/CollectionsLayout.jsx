@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
+import { useAppData } from '../../context/AppDataContext'
 import {
   ROUTES,
   isCollectionFormRoute,
@@ -22,6 +24,27 @@ function DesktopCreatePanel({ title, hint, to, label }) {
 
 export function CollectionsLayout() {
   const { pathname } = useLocation()
+  const { loadCollections, setError } = useAppData()
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function refreshCollections() {
+      try {
+        await loadCollections()
+      } catch (requestError) {
+        if (!cancelled) {
+          setError(requestError.message)
+        }
+      }
+    }
+
+    refreshCollections()
+
+    return () => {
+      cancelled = true
+    }
+  }, [pathname, loadCollections, setError])
 
   if (isCollectionListRoute(pathname)) {
     return (
