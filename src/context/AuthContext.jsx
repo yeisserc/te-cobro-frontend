@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { apiRequest } from '../lib/api'
 import { clearStoredUser, loadStoredUser, persistUser as saveUser } from '../lib/session'
 
@@ -7,25 +7,31 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(() => loadStoredUser())
 
+  const persistUser = useCallback((user) => {
+    saveUser(user)
+    setCurrentUser(user)
+  }, [])
+
+  const logout = useCallback(() => {
+    clearStoredUser()
+    setCurrentUser(null)
+  }, [])
+
+  const refreshUser = useCallback(async (userId) => {
+    const user = await apiRequest(`users/${userId}`)
+    saveUser(user)
+    setCurrentUser(user)
+    return user
+  }, [])
+
   const value = useMemo(
     () => ({
       currentUser,
-      persistUser(user) {
-        saveUser(user)
-        setCurrentUser(user)
-      },
-      logout() {
-        clearStoredUser()
-        setCurrentUser(null)
-      },
-      async refreshUser(userId) {
-        const user = await apiRequest(`users/${userId}`)
-        saveUser(user)
-        setCurrentUser(user)
-        return user
-      },
+      persistUser,
+      logout,
+      refreshUser,
     }),
-    [currentUser],
+    [currentUser, persistUser, logout, refreshUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -4,17 +4,50 @@ import { useAppData } from '../context/AppDataContext'
 import { apiRequest } from '../lib/api'
 
 export default function BankPage() {
-  const { currentUser, persistUser } = useAuth()
+  const { currentUser, persistUser, refreshUser } = useAuth()
   const { setError, setSuccess } = useAppData()
   const [bankForm, setBankForm] = useState({ bankUsername: '', bankPassword: '' })
   const [bankLoading, setBankLoading] = useState(false)
+  const [loadingUser, setLoadingUser] = useState(true)
 
   useEffect(() => {
-    setBankForm({
-      bankUsername: currentUser?.bankUsername || '',
-      bankPassword: '',
-    })
-  }, [currentUser?.bankUsername, currentUser?.id])
+    let cancelled = false
+
+    async function loadBankCredentials() {
+      if (!currentUser?.id) return
+
+      setLoadingUser(true)
+      setError('')
+
+      try {
+        const user = await refreshUser(currentUser.id)
+        if (cancelled) return
+
+        setBankForm({
+          bankUsername: user.bankUsername || '',
+          bankPassword: '',
+        })
+      } catch (requestError) {
+        if (!cancelled) {
+          setError(requestError.message)
+          setBankForm({
+            bankUsername: currentUser.bankUsername || '',
+            bankPassword: '',
+          })
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingUser(false)
+        }
+      }
+    }
+
+    loadBankCredentials()
+
+    return () => {
+      cancelled = true
+    }
+  }, [currentUser?.id, refreshUser, setError])
 
   async function handleSubmitBankAccount(event) {
     event.preventDefault()
@@ -54,52 +87,58 @@ export default function BankPage() {
           </p>
         </div>
 
-        {currentUser.hasBankAccount ? (
-          <p className="bank-status configured">Tu cuenta bancaria ya está configurada.</p>
+        {loadingUser ? (
+          <p className="empty-hint">Cargando datos bancarios...</p>
         ) : (
-          <p className="bank-status pending">Aún no has configurado tu cuenta bancaria.</p>
+          <>
+            {currentUser.hasBankAccount ? (
+              <p className="bank-status configured">Tu cuenta bancaria ya está configurada.</p>
+            ) : (
+              <p className="bank-status pending">Aún no has configurado tu cuenta bancaria.</p>
+            )}
+
+            <form className="form-grid" onSubmit={handleSubmitBankAccount}>
+              <label className="field">
+                <span>Usuario del banco</span>
+                <input
+                  required
+                  autoComplete="username"
+                  placeholder="Usuario de banca en línea"
+                  value={bankForm.bankUsername}
+                  onChange={(event) =>
+                    setBankForm((prev) => ({ ...prev, bankUsername: event.target.value }))
+                  }
+                />
+              </label>
+
+              <label className="field">
+                <span>Contraseña del banco</span>
+                <input
+                  required
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder={
+                    currentUser.hasBankAccount
+                      ? 'Ingresa la contraseña para actualizarla'
+                      : 'Contraseña de banca en línea'
+                  }
+                  value={bankForm.bankPassword}
+                  onChange={(event) =>
+                    setBankForm((prev) => ({ ...prev, bankPassword: event.target.value }))
+                  }
+                />
+              </label>
+
+              <button className="btn-primary" type="submit" disabled={bankLoading}>
+                {bankLoading
+                  ? 'Guardando...'
+                  : currentUser.hasBankAccount
+                    ? 'Actualizar datos bancarios'
+                    : 'Guardar datos bancarios'}
+              </button>
+            </form>
+          </>
         )}
-
-        <form className="form-grid" onSubmit={handleSubmitBankAccount}>
-          <label className="field">
-            <span>Usuario del banco</span>
-            <input
-              required
-              autoComplete="username"
-              placeholder="Usuario de banca en línea"
-              value={bankForm.bankUsername}
-              onChange={(event) =>
-                setBankForm((prev) => ({ ...prev, bankUsername: event.target.value }))
-              }
-            />
-          </label>
-
-          <label className="field">
-            <span>Contraseña del banco</span>
-            <input
-              required
-              type="password"
-              autoComplete="current-password"
-              placeholder={
-                currentUser.hasBankAccount
-                  ? 'Ingresa la contraseña para actualizarla'
-                  : 'Contraseña de banca en línea'
-              }
-              value={bankForm.bankPassword}
-              onChange={(event) =>
-                setBankForm((prev) => ({ ...prev, bankPassword: event.target.value }))
-              }
-            />
-          </label>
-
-          <button className="btn-primary" type="submit" disabled={bankLoading}>
-            {bankLoading
-              ? 'Guardando...'
-              : currentUser.hasBankAccount
-                ? 'Actualizar datos bancarios'
-                : 'Guardar datos bancarios'}
-          </button>
-        </form>
       </section>
     </div>
   )
