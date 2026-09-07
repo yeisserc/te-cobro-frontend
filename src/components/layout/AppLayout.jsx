@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useAppData } from '../../context/AppDataContext'
 import { money } from '../../lib/format'
+import { APP_NAME } from '../../lib/constants'
 import {
   ROUTES,
   isClientHistoryRoute,
@@ -104,7 +105,7 @@ function AppLayout() {
       <main className="app-shell">
         <header className="header">
           <div className="header-brand">
-            <p className="brand-mark">Te Cobro</p>
+            <p className="brand-mark">{APP_NAME}</p>
             <p className="brand-tagline">Gestor de clientes y cobranza</p>
           </div>
 
