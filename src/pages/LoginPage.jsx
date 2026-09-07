@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiRequest } from '../lib/api'
+import { APP_NAME } from '../lib/constants'
 import { ROUTES } from '../lib/routes'
 import { ErrorBanner } from '../components/ui/Banners'
 
@@ -45,7 +46,7 @@ export default function LoginPage() {
     <div className="app-root auth-root">
       <main className="auth-shell">
         <div className="auth-brand">
-          <p className="brand-mark">Te Cobro</p>
+          <p className="brand-mark">{APP_NAME}</p>
           <p className="brand-tagline">Gestor de clientes y cobranza</p>
         </div>
 
