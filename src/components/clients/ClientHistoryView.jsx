@@ -96,13 +96,13 @@ export function ClientHistoryView() {
                 <dd className="accent-value">{money.format(collection.currentDebt)}</dd>
               </div>
               <div>
-                <dt>Cuotas</dt>
+                <dt>Cuotas Pagadas</dt>
                 <dd>
-                  {collection.currentInstallment} / {collection.installments}
+                  {collection.currentInstallment - 1} / {collection.installments}
                 </dd>
               </div>
               <div>
-                <dt>Envíos</dt>
+                <dt>Cobros Enviados</dt>
                 <dd>{collection.sends.length}</dd>
               </div>
             </dl>

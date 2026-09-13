@@ -58,9 +58,9 @@ export function CollectionList({ showCreateButton = false }) {
                 <dd className="accent-value">{money.format(item.currentDebt)}</dd>
               </div>
               <div>
-                <dt>Cuotas</dt>
+                <dt>Cuotas Pagadas</dt>
                 <dd>
-                  {item.currentInstallment}/{item.installments}
+                  {item.currentInstallment - 1}/{item.installments}
                 </dd>
               </div>
               <div>
@@ -98,7 +98,7 @@ export function CollectionList({ showCreateButton = false }) {
               <th>Deuda total</th>
               <th>Deuda actual</th>
               <th>Nro de cuotas</th>
-              <th>Cuota actual</th>
+              <th>Cuotas Pagadas</th>
               <th>Frecuencia</th>
               <th>Día(s)</th>
               <th>Envío</th>
@@ -113,7 +113,7 @@ export function CollectionList({ showCreateButton = false }) {
                 <td>{money.format(item.totalDebt)}</td>
                 <td>{money.format(item.currentDebt)}</td>
                 <td>{item.installments}</td>
-                <td>{item.currentInstallment}</td>
+                <td>{item.currentInstallment - 1}</td>
                 <td>{item.frequency}</td>
                 <td>{item.collectionDay || '-'}</td>
                 <td>
