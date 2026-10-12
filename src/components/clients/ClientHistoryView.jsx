@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest, resolveAssetUrl } from '../../lib/api'
@@ -97,6 +98,9 @@ export function ClientHistoryView() {
   useEffect(() => {
     if (!preview) return undefined
 
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
     function onKeyDown(event) {
       if (event.key === 'Escape') {
         setPreview(null)
@@ -104,7 +108,10 @@ export function ClientHistoryView() {
     }
 
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKeyDown)
+    }
   }, [preview])
 
   const historyClient = client || historyData?.client
@@ -266,25 +273,28 @@ export function ClientHistoryView() {
         ))
       )}
 
-      {preview ? (
-        <div
-          className="screenshot-lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label={preview.alt}
-          onClick={() => setPreview(null)}
-        >
-          <button
-            type="button"
-            className="screenshot-lightbox-close"
-            aria-label="Cerrar comprobante"
-            onClick={() => setPreview(null)}
-          >
-            ×
-          </button>
-          <img src={preview.src} alt={preview.alt} onClick={(event) => event.stopPropagation()} />
-        </div>
-      ) : null}
+      {preview
+        ? createPortal(
+            <div
+              className="screenshot-lightbox"
+              role="dialog"
+              aria-modal="true"
+              aria-label={preview.alt}
+              onClick={() => setPreview(null)}
+            >
+              <button
+                type="button"
+                className="screenshot-lightbox-close"
+                aria-label="Cerrar comprobante"
+                onClick={() => setPreview(null)}
+              >
+                ×
+              </button>
+              <img src={preview.src} alt={preview.alt} onClick={(event) => event.stopPropagation()} />
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   )
 }
