@@ -36,6 +36,18 @@ function translateErrorMessage(message) {
   return text
 }
 
+export function resolveAssetUrl(path) {
+  if (!path) return null
+
+  const value = String(path).trim()
+  if (!value) return null
+  if (/^https?:\/\//i.test(value)) return value
+
+  const base = String(API_URL || '').replace(/\/$/, '')
+  const normalized = value.replace(/\\/g, '/').replace(/^\//, '')
+  return `${base}/${normalized}`
+}
+
 export async function apiRequest(path, options = {}) {
   const response = await fetch(`${API_URL}/${path}`, {
     headers: {

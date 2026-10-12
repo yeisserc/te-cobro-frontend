@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
-import { apiRequest } from '../../lib/api'
+import { apiRequest, resolveAssetUrl } from '../../lib/api'
 import {
   formatClientPhone,
   formatDateTime,
@@ -12,11 +12,57 @@ import {
 import { ROUTES } from '../../lib/routes'
 import { IconBack } from '../icons/NavIcons'
 
+function sendScreenshots(send) {
+  return (send.payments ?? [])
+    .map((payment) => ({
+      id: payment.id,
+      src: resolveAssetUrl(payment.screenshotUrl),
+      alt: `Comprobante de la cuota ${send.installmentNumber}`,
+    }))
+    .filter((item) => item.src)
+}
+
+function ScreenshotThumb({ src, alt, onOpen }) {
+  const [failed, setFailed] = useState(false)
+
+  if (failed) {
+    return <span className="screenshot-empty">No se pudo cargar</span>
+  }
+
+  return (
+    <button type="button" className="screenshot-thumb" onClick={() => onOpen({ src, alt })}>
+      <img src={src} alt={alt} onError={() => setFailed(true)} />
+    </button>
+  )
+}
+
+function ScreenshotList({ send, onOpen }) {
+  const screenshots = sendScreenshots(send)
+
+  if (screenshots.length === 0) {
+    return <span className="screenshot-empty">Sin comprobante</span>
+  }
+
+  return (
+    <div className="screenshot-list">
+      {screenshots.map((screenshot) => (
+        <ScreenshotThumb
+          key={screenshot.id}
+          src={screenshot.src}
+          alt={screenshot.alt}
+          onOpen={onOpen}
+        />
+      ))}
+    </div>
+  )
+}
+
 export function ClientHistoryView() {
   const { clientId } = useParams()
   const { clients, setError } = useAppData()
   const [historyData, setHistoryData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [preview, setPreview] = useState(null)
 
   const client = clients.find((item) => item.id === clientId)
 
@@ -48,10 +94,23 @@ export function ClientHistoryView() {
     }
   }, [clientId, setError])
 
+  useEffect(() => {
+    if (!preview) return undefined
+
+    function onKeyDown(event) {
+      if (event.key === 'Escape') {
+        setPreview(null)
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [preview])
+
   const historyClient = client || historyData?.client
 
   return (
-    <div className="workspace">
+    <div className="workspace workspace-stack">
       <section className="panel">
         <div className="panel-head panel-head-with-back">
           <Link to={ROUTES.clients} className="back-link" aria-label="Volver a clientes">
@@ -146,6 +205,12 @@ export function ClientHistoryView() {
                                 : 'Sin pago registrado'}
                             </dd>
                           </div>
+                          <div className="history-proof">
+                            <dt>Comprobante</dt>
+                            <dd>
+                              <ScreenshotList send={send} onOpen={setPreview} />
+                            </dd>
+                          </div>
                         </dl>
                       </article>
                     )
@@ -163,6 +228,7 @@ export function ClientHistoryView() {
                         <th>Estado</th>
                         <th>Referencia</th>
                         <th>Pago</th>
+                        <th>Comprobante</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -185,6 +251,9 @@ export function ClientHistoryView() {
                                 ? `${money.format(latestPayment.amount)} · ${formatDateTime(latestPayment.createdAt)}`
                                 : 'Sin pago'}
                             </td>
+                            <td className="screenshot-cell">
+                              <ScreenshotList send={send} onOpen={setPreview} />
+                            </td>
                           </tr>
                         )
                       })}
@@ -196,6 +265,26 @@ export function ClientHistoryView() {
           </section>
         ))
       )}
+
+      {preview ? (
+        <div
+          className="screenshot-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={preview.alt}
+          onClick={() => setPreview(null)}
+        >
+          <button
+            type="button"
+            className="screenshot-lightbox-close"
+            aria-label="Cerrar comprobante"
+            onClick={() => setPreview(null)}
+          >
+            ×
+          </button>
+          <img src={preview.src} alt={preview.alt} onClick={(event) => event.stopPropagation()} />
+        </div>
+      ) : null}
     </div>
   )
 }
