@@ -505,16 +505,29 @@ a.btn-ghost {
   position: fixed;
   inset: 0;
   z-index: 80;
-  display: grid;
-  place-items: center;
-  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding:
+    max(0.75rem, env(safe-area-inset-top))
+    max(0.75rem, env(safe-area-inset-right))
+    max(0.75rem, env(safe-area-inset-bottom))
+    max(0.75rem, env(safe-area-inset-left));
   background: rgba(16, 35, 31, 0.78);
+  overflow: hidden;
 }
 
 .screenshot-lightbox img {
-  max-width: min(920px, 100%);
-  max-height: min(86dvh, 100%);
+  display: block;
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: min(920px, calc(100vw - 1.5rem));
+  max-height: calc(100dvh - 1.5rem);
   object-fit: contain;
+  object-position: center;
   border-radius: 0.85rem;
   background: #fff;
   box-shadow: var(--shadow);
