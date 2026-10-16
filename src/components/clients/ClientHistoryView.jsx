@@ -12,6 +12,7 @@ import {
 } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
 import { IconBack } from '../icons/NavIcons'
+import { WhatsappDeliveryStatus } from '../whatsapp/WhatsappDeliveryStatus'
 
 function sendScreenshots(send) {
   return (send.payments ?? [])
@@ -185,7 +186,13 @@ export function ClientHistoryView() {
                         <div className="data-card-header">
                           <div className="data-card-title">
                             <h3>Cuota {send.installmentNumber}</h3>
-                            <p className="data-card-concept">{formatDateTime(send.sentAt)}</p>
+                            <p className="data-card-concept send-when">
+                              {formatDateTime(send.sentAt)}
+                              <WhatsappDeliveryStatus
+                                status={send.whatsappStatus}
+                                error={send.whatsappError}
+                              />
+                            </p>
                           </div>
                           <span className={`status-chip status-${sendStatus(send)}`}>
                             {sendStatusLabel(send)}
@@ -244,7 +251,15 @@ export function ClientHistoryView() {
                         return (
                           <tr key={send.id}>
                             <td>{send.installmentNumber}</td>
-                            <td>{formatDateTime(send.sentAt)}</td>
+                            <td>
+                              <span className="send-when">
+                                {formatDateTime(send.sentAt)}
+                                <WhatsappDeliveryStatus
+                                  status={send.whatsappStatus}
+                                  error={send.whatsappError}
+                                />
+                              </span>
+                            </td>
                             <td>{money.format(send.amountUsd)}</td>
                             <td>{Number(send.amountBs).toFixed(2)}</td>
                             <td>
