@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
+import { useAuth } from '../../context/AuthContext'
 import { apiRequest, resolveAssetUrl } from '../../lib/api'
+import { subscribeWhatsappStatus } from '../../lib/whatsappStatusSocket'
 import {
   formatClientPhone,
   formatDateTime,
@@ -59,8 +61,33 @@ function ScreenshotList({ send, onOpen }) {
   )
 }
 
+function applyWhatsappStatus(history, update) {
+  if (!history?.collections) return history
+
+  let changed = false
+  const collections = history.collections.map((collection) => {
+    if (collection.id !== update.collectionId) return collection
+
+    const sends = collection.sends.map((send) => {
+      if (send.id !== update.collectionSendId) return send
+      changed = true
+      return {
+        ...send,
+        whatsappStatus: update.whatsappStatus,
+        whatsappStatusAt: update.whatsappStatusAt,
+        whatsappError: update.whatsappError,
+      }
+    })
+
+    return changed ? { ...collection, sends } : collection
+  })
+
+  return changed ? { ...history, collections } : history
+}
+
 export function ClientHistoryView() {
   const { clientId } = useParams()
+  const { currentUser } = useAuth()
   const { clients, setError } = useAppData()
   const [historyData, setHistoryData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -95,6 +122,15 @@ export function ClientHistoryView() {
       cancelled = true
     }
   }, [clientId, setError])
+
+  useEffect(() => {
+    if (!currentUser?.id || !clientId) return undefined
+
+    return subscribeWhatsappStatus(currentUser.id, (update) => {
+      if (update?.clientId !== clientId) return
+      setHistoryData((current) => applyWhatsappStatus(current, update))
+    })
+  }, [clientId, currentUser?.id])
 
   useEffect(() => {
     if (!preview) return undefined
