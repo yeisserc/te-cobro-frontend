@@ -6,6 +6,8 @@ import { apiRequest } from '../../lib/api'
 import { collectionInitialForm } from '../../lib/constants'
 import { ROUTES } from '../../lib/routes'
 import { IconBack } from '../icons/NavIcons'
+import { AsyncButton } from '../ui/AsyncButton'
+import { useAsyncAction } from '../ui/useAsyncAction'
 
 export function CollectionForm() {
   const navigate = useNavigate()
@@ -14,6 +16,7 @@ export function CollectionForm() {
   const { currentUser } = useAuth()
   const { clients, collections, setError, reloadData } = useAppData()
   const [form, setForm] = useState(collectionInitialForm)
+  const [saving, runSave] = useAsyncAction()
 
   const hasClients = clients.length > 0
 
@@ -74,24 +77,26 @@ export function CollectionForm() {
           concept: form.concept.trim(),
         }
 
-    try {
-      if (isEditing) {
-        await apiRequest(`collections/${collectionId}`, {
-          method: 'PATCH',
-          body: JSON.stringify(payload),
-        })
-      } else {
-        await apiRequest('collections', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        })
-      }
+    await runSave(async () => {
+      try {
+        if (isEditing) {
+          await apiRequest(`collections/${collectionId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+          })
+        } else {
+          await apiRequest('collections', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          })
+        }
 
-      await reloadData()
-      navigate(ROUTES.collections)
-    } catch (requestError) {
-      setError(requestError.message)
-    }
+        await reloadData()
+        navigate(ROUTES.collections)
+      } catch (requestError) {
+        setError(requestError.message)
+      }
+    })
   }
 
   return (
@@ -308,9 +313,9 @@ export function CollectionForm() {
         )}
 
         <div className="actions-row">
-          <button type="submit" className="btn-primary" disabled={!hasClients}>
+          <AsyncButton type="submit" className="btn-primary" disabled={!hasClients} loading={saving}>
             {isEditing ? 'Guardar cambios' : 'Agregar cobranza'}
-          </button>
+          </AsyncButton>
           <Link to={ROUTES.collections} className="btn-ghost">
             Cancelar
           </Link>

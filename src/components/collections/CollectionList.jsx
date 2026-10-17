@@ -1,21 +1,31 @@
+import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
 import { money } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
+import { AsyncButton } from '../ui/AsyncButton'
 import { CollectionSendActions } from './CollectionSendActions'
 
 export function CollectionList({ showCreateButton = false }) {
   const navigate = useNavigate()
   const { collections, clientNameById, setError, reloadData } = useAppData()
+  const [deletingId, setDeletingId] = useState(null)
+  const deletingRef = useRef(false)
 
   async function handleDeleteCollection(collectionId) {
+    if (deletingRef.current) return
+    deletingRef.current = true
+    setDeletingId(collectionId)
     setError('')
     try {
       await apiRequest(`collections/${collectionId}`, { method: 'DELETE' })
       await reloadData()
     } catch (requestError) {
       setError(requestError.message)
+    } finally {
+      deletingRef.current = false
+      setDeletingId(null)
     }
   }
 
@@ -77,13 +87,15 @@ export function CollectionList({ showCreateButton = false }) {
               >
                 Editar
               </button>
-              <button
+              <AsyncButton
                 type="button"
                 className="table-btn danger"
+                loading={deletingId === item.id}
+                disabled={Boolean(deletingId)}
                 onClick={() => handleDeleteCollection(item.id)}
               >
                 Eliminar
-              </button>
+              </AsyncButton>
             </div>
           </article>
         ))}
@@ -128,13 +140,15 @@ export function CollectionList({ showCreateButton = false }) {
                     >
                       Editar
                     </button>
-                    <button
+                    <AsyncButton
                       type="button"
                       className="table-btn danger"
+                      loading={deletingId === item.id}
+                      disabled={Boolean(deletingId)}
                       onClick={() => handleDeleteCollection(item.id)}
                     >
                       Eliminar
-                    </button>
+                    </AsyncButton>
                   </div>
                 </td>
               </tr>

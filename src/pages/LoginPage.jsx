@@ -5,12 +5,14 @@ import { apiRequest } from '../lib/api'
 import { APP_NAME } from '../lib/constants'
 import { ROUTES } from '../lib/routes'
 import { ErrorBanner } from '../components/ui/Banners'
+import { AsyncButton } from '../components/ui/AsyncButton'
+import { useAsyncAction } from '../components/ui/useAsyncAction'
 
 export default function LoginPage() {
   const { currentUser, persistUser } = useAuth()
   const [authMode, setAuthMode] = useState('register')
   const [authForm, setAuthForm] = useState({ email: '', password: '' })
-  const [authLoading, setAuthLoading] = useState(false)
+  const [authLoading, runAuth] = useAsyncAction()
   const [error, setError] = useState('')
 
   if (currentUser) {
@@ -20,26 +22,25 @@ export default function LoginPage() {
   async function handleAuthSubmit(event) {
     event.preventDefault()
     setError('')
-    setAuthLoading(true)
 
     const payload = {
       email: authForm.email.trim(),
       password: authForm.password,
     }
 
-    try {
-      const path = authMode === 'register' ? 'users/register' : 'users/login'
-      const user = await apiRequest(path, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
-      persistUser(user)
-      setAuthForm({ email: '', password: '' })
-    } catch (requestError) {
-      setError(requestError.message)
-    } finally {
-      setAuthLoading(false)
-    }
+    await runAuth(async () => {
+      try {
+        const path = authMode === 'register' ? 'users/register' : 'users/login'
+        const user = await apiRequest(path, {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        })
+        persistUser(user)
+        setAuthForm({ email: '', password: '' })
+      } catch (requestError) {
+        setError(requestError.message)
+      }
+    })
   }
 
   return (
@@ -90,13 +91,9 @@ export default function LoginPage() {
               />
             </label>
 
-            <button className="btn-primary" type="submit" disabled={authLoading}>
-              {authLoading
-                ? 'Espera...'
-                : authMode === 'register'
-                  ? 'Registrarme'
-                  : 'Entrar'}
-            </button>
+            <AsyncButton className="btn-primary" type="submit" loading={authLoading}>
+              {authMode === 'register' ? 'Registrarme' : 'Entrar'}
+            </AsyncButton>
           </form>
 
           <p className="auth-switch">

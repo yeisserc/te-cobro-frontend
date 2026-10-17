@@ -7,6 +7,8 @@ import { PHONE_CODES, clientInitialForm } from '../../lib/constants'
 import { formatPhoneCode } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
 import { IconBack } from '../icons/NavIcons'
+import { AsyncButton } from '../ui/AsyncButton'
+import { useAsyncAction } from '../ui/useAsyncAction'
 
 export function ClientForm() {
   const navigate = useNavigate()
@@ -15,6 +17,7 @@ export function ClientForm() {
   const { currentUser } = useAuth()
   const { clients, setError, reloadData } = useAppData()
   const [form, setForm] = useState(clientInitialForm)
+  const [saving, runSave] = useAsyncAction()
 
   useEffect(() => {
     if (!isEditing) {
@@ -47,24 +50,26 @@ export function ClientForm() {
       phoneNumber: form.phoneNumber.trim(),
     }
 
-    try {
-      if (isEditing) {
-        await apiRequest(`clients/${clientId}`, {
-          method: 'PATCH',
-          body: JSON.stringify(payload),
-        })
-      } else {
-        await apiRequest('clients', {
-          method: 'POST',
-          body: JSON.stringify(payload),
-        })
-      }
+    await runSave(async () => {
+      try {
+        if (isEditing) {
+          await apiRequest(`clients/${clientId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(payload),
+          })
+        } else {
+          await apiRequest('clients', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          })
+        }
 
-      await reloadData()
-      navigate(ROUTES.clients)
-    } catch (requestError) {
-      setError(requestError.message)
-    }
+        await reloadData()
+        navigate(ROUTES.clients)
+      } catch (requestError) {
+        setError(requestError.message)
+      }
+    })
   }
 
   return (
@@ -139,9 +144,9 @@ export function ClientForm() {
           </div>
         </div>
         <div className="actions-row">
-          <button type="submit" className="btn-primary">
+          <AsyncButton type="submit" className="btn-primary" loading={saving}>
             {isEditing ? 'Guardar cambios' : 'Agregar cliente'}
-          </button>
+          </AsyncButton>
           <Link to={ROUTES.clients} className="btn-ghost">
             Cancelar
           </Link>
