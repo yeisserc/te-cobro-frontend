@@ -1,20 +1,30 @@
+import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
 import { formatClientPhone } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
+import { AsyncButton } from '../ui/AsyncButton'
 
 export function ClientList({ showCreateButton = false }) {
   const navigate = useNavigate()
   const { clients, setError, reloadData } = useAppData()
+  const [deletingId, setDeletingId] = useState(null)
+  const deletingRef = useRef(false)
 
   async function handleDeleteClient(clientId) {
+    if (deletingRef.current) return
+    deletingRef.current = true
+    setDeletingId(clientId)
     setError('')
     try {
       await apiRequest(`clients/${clientId}`, { method: 'DELETE' })
       await reloadData()
     } catch (requestError) {
       setError(requestError.message)
+    } finally {
+      deletingRef.current = false
+      setDeletingId(null)
     }
   }
 
@@ -70,13 +80,15 @@ export function ClientList({ showCreateButton = false }) {
               >
                 Editar
               </button>
-              <button
+              <AsyncButton
                 type="button"
                 className="table-btn danger"
+                loading={deletingId === client.id}
+                disabled={Boolean(deletingId)}
                 onClick={() => handleDeleteClient(client.id)}
               >
                 Eliminar
-              </button>
+              </AsyncButton>
             </div>
           </article>
         ))}
@@ -113,13 +125,15 @@ export function ClientList({ showCreateButton = false }) {
                     >
                       Editar
                     </button>
-                    <button
+                    <AsyncButton
                       type="button"
                       className="table-btn danger"
+                      loading={deletingId === client.id}
+                      disabled={Boolean(deletingId)}
                       onClick={() => handleDeleteClient(client.id)}
                     >
                       Eliminar
-                    </button>
+                    </AsyncButton>
                   </div>
                 </td>
               </tr>

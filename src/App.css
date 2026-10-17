@@ -410,6 +410,37 @@ a.btn-ghost {
   cursor: not-allowed;
 }
 
+.async-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
+.btn-primary.async-btn {
+  width: 100%;
+}
+
+.async-btn-label {
+  min-width: 0;
+}
+
+.btn-spinner {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: 0 0 auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin 0.7s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .btn-ghost {
   border: 1px solid var(--line-strong);
   background: var(--surface);
@@ -765,7 +796,7 @@ tbody tr:hover {
   -webkit-tap-highlight-color: transparent;
 }
 
-.table-btn:hover {
+.table-btn:hover:not(:disabled) {
   background: var(--surface-2);
   color: var(--ink);
 }
@@ -782,7 +813,7 @@ tbody tr:hover {
   color: var(--accent-strong);
 }
 
-.table-btn.accent:hover {
+.table-btn.accent:hover:not(:disabled) {
   background: color-mix(in srgb, var(--accent-soft) 70%, var(--accent) 30%);
   color: var(--accent-strong);
 }

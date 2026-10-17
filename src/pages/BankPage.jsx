@@ -3,6 +3,8 @@ import { useAuth } from '../context/AuthContext'
 import { useAppData } from '../context/AppDataContext'
 import { apiRequest } from '../lib/api'
 import { PAYMENT_BANKS } from '../lib/constants'
+import { AsyncButton } from '../components/ui/AsyncButton'
+import { useAsyncAction } from '../components/ui/useAsyncAction'
 
 export default function BankPage() {
   const { currentUser, persistUser, refreshUser } = useAuth()
@@ -14,8 +16,8 @@ export default function BankPage() {
     paymentPhoneNumber: '',
     paymentBank: '',
   })
-  const [bankLoading, setBankLoading] = useState(false)
-  const [paymentLoading, setPaymentLoading] = useState(false)
+  const [bankLoading, runBankSave] = useAsyncAction()
+  const [paymentLoading, runPaymentSave] = useAsyncAction()
   const [loadingUser, setLoadingUser] = useState(true)
 
   useEffect(() => {
@@ -73,58 +75,56 @@ export default function BankPage() {
     event.preventDefault()
     setError('')
     setSuccess('')
-    setBankLoading(true)
 
-    try {
-      const updatedUser = await apiRequest(`users/${currentUser.id}/bank-account`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          bankUsername: bankForm.bankUsername.trim(),
-          bankPassword: bankForm.bankPassword,
-        }),
-      })
-      persistUser(updatedUser)
-      setBankForm({
-        bankUsername: updatedUser.bankUsername || '',
-        bankPassword: '',
-      })
-      setSuccess('Datos bancarios guardados correctamente.')
-    } catch (requestError) {
-      setError(requestError.message)
-    } finally {
-      setBankLoading(false)
-    }
+    await runBankSave(async () => {
+      try {
+        const updatedUser = await apiRequest(`users/${currentUser.id}/bank-account`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            bankUsername: bankForm.bankUsername.trim(),
+            bankPassword: bankForm.bankPassword,
+          }),
+        })
+        persistUser(updatedUser)
+        setBankForm({
+          bankUsername: updatedUser.bankUsername || '',
+          bankPassword: '',
+        })
+        setSuccess('Datos bancarios guardados correctamente.')
+      } catch (requestError) {
+        setError(requestError.message)
+      }
+    })
   }
 
   async function handleSubmitPaymentDetails(event) {
     event.preventDefault()
     setError('')
     setSuccess('')
-    setPaymentLoading(true)
 
-    try {
-      const updatedUser = await apiRequest(`users/${currentUser.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          companyName: paymentForm.companyName.trim(),
-          paymentDocument: paymentForm.paymentDocument.trim(),
-          paymentPhoneNumber: paymentForm.paymentPhoneNumber.trim(),
-          paymentBank: paymentForm.paymentBank,
-        }),
-      })
-      persistUser(updatedUser)
-      setPaymentForm({
-        companyName: updatedUser.companyName || '',
-        paymentDocument: updatedUser.paymentDocument || '',
-        paymentPhoneNumber: updatedUser.paymentPhoneNumber || '',
-        paymentBank: updatedUser.paymentBank || '',
-      })
-      setSuccess('Datos de cobro guardados correctamente.')
-    } catch (requestError) {
-      setError(requestError.message)
-    } finally {
-      setPaymentLoading(false)
-    }
+    await runPaymentSave(async () => {
+      try {
+        const updatedUser = await apiRequest(`users/${currentUser.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            companyName: paymentForm.companyName.trim(),
+            paymentDocument: paymentForm.paymentDocument.trim(),
+            paymentPhoneNumber: paymentForm.paymentPhoneNumber.trim(),
+            paymentBank: paymentForm.paymentBank,
+          }),
+        })
+        persistUser(updatedUser)
+        setPaymentForm({
+          companyName: updatedUser.companyName || '',
+          paymentDocument: updatedUser.paymentDocument || '',
+          paymentPhoneNumber: updatedUser.paymentPhoneNumber || '',
+          paymentBank: updatedUser.paymentBank || '',
+        })
+        setSuccess('Datos de cobro guardados correctamente.')
+      } catch (requestError) {
+        setError(requestError.message)
+      }
+    })
   }
 
   return (
@@ -180,13 +180,9 @@ export default function BankPage() {
                 />
               </label>
 
-              <button className="btn-primary" type="submit" disabled={bankLoading}>
-                {bankLoading
-                  ? 'Guardando...'
-                  : currentUser.hasBankAccount
-                    ? 'Actualizar datos bancarios'
-                    : 'Guardar datos bancarios'}
-              </button>
+              <AsyncButton className="btn-primary" type="submit" loading={bankLoading}>
+                {currentUser.hasBankAccount ? 'Actualizar datos bancarios' : 'Guardar datos bancarios'}
+              </AsyncButton>
             </form>
           </>
         )}
@@ -252,9 +248,9 @@ export default function BankPage() {
               </select>
             </label>
 
-            <button className="btn-primary" type="submit" disabled={paymentLoading}>
-              {paymentLoading ? 'Guardando...' : 'Guardar datos de cobro'}
-            </button>
+            <AsyncButton className="btn-primary" type="submit" loading={paymentLoading}>
+              Guardar datos de cobro
+            </AsyncButton>
           </form>
         )}
       </section>

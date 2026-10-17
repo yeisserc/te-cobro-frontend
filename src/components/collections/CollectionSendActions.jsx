@@ -1,7 +1,8 @@
-import { useState } from 'react'
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
 import { money } from '../../lib/format'
+import { AsyncButton } from '../ui/AsyncButton'
+import { useAsyncAction } from '../ui/useAsyncAction'
 
 function canSendCollection(collection) {
   return (
@@ -12,39 +13,39 @@ function canSendCollection(collection) {
 
 export function CollectionSendActions({ collection }) {
   const { setError, setSuccess } = useAppData()
-  const [sending, setSending] = useState(false)
+  const [sending, runSend] = useAsyncAction()
   const canSend = canSendCollection(collection)
 
   async function handleSendCharge() {
     setError('')
     setSuccess('')
-    setSending(true)
 
-    try {
-      const result = await apiRequest(`collections/${collection.id}/send-charge`, {
-        method: 'POST',
-      })
+    await runSend(async () => {
+      try {
+        const result = await apiRequest(`collections/${collection.id}/send-charge`, {
+          method: 'POST',
+        })
 
-      setSuccess(
-        `Cobro enviado por WhatsApp (cuota ${result.installmentNumber}: ${money.format(result.amountUsd)} / ${Number(result.amountBs).toFixed(2)} Bs).`,
-      )
-    } catch (requestError) {
-      setError(requestError.message)
-    } finally {
-      setSending(false)
-    }
+        setSuccess(
+          `Cobro enviado por WhatsApp (cuota ${result.installmentNumber}: ${money.format(result.amountUsd)} / ${Number(result.amountBs).toFixed(2)} Bs).`,
+        )
+      } catch (requestError) {
+        setError(requestError.message)
+      }
+    })
   }
 
   return (
     <div className="collection-send-actions">
-      <button
+      <AsyncButton
         type="button"
         className="table-btn accent"
-        disabled={!canSend || sending}
+        disabled={!canSend}
+        loading={sending}
         onClick={handleSendCharge}
       >
-        {sending ? 'Enviando...' : 'Enviar cobro'}
-      </button>
+        Enviar cobro
+      </AsyncButton>
     </div>
   )
 }
