@@ -5,6 +5,10 @@ export const APP_NAME = 'CobroFacil'
 
 export const PHONE_CODES = ['0412', '0414', '0416', '0422', '0424', '0426']
 
+export const PAYMENT_BANKS = [
+  { value: 'banco_de_venezuela', label: 'Banco de Venezuela' },
+]
+
 export const clientInitialForm = {
   firstName: '',
   lastName: '',
