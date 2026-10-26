@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
-import { collectionInitialForm } from '../../lib/constants'
+import { LAST_MONTH_DAY, LAST_MONTH_DAY_LABEL, collectionInitialForm } from '../../lib/constants'
 import { ROUTES } from '../../lib/routes'
 import { IconBack } from '../icons/NavIcons'
 import { AsyncButton } from '../ui/AsyncButton'
@@ -212,14 +212,15 @@ export function CollectionForm() {
           <select
             required
             value={form.frequency}
-            onChange={(event) =>
+            onChange={(event) => {
+              const frequency = event.target.value
               setForm((prev) => ({
                 ...prev,
-                frequency: event.target.value,
-                collectionDay: '',
-                collectionDay2: '',
+                frequency,
+                collectionDay: frequency === 'Quincenal' ? '1' : '',
+                collectionDay2: frequency === 'Quincenal' ? '16' : '',
               }))
-            }
+            }}
           >
             <option>Manual</option>
             <option>Semanal</option>
@@ -257,9 +258,9 @@ export function CollectionForm() {
         )}
 
         {form.frequency === 'Quincenal' && (
-          <div className="field">
-            <span>Días de cobro</span>
-            <div className="split-row">
+          <div className="split-row">
+            <label className="field">
+              <span>Primera quincena</span>
               <select
                 required
                 value={form.collectionDay}
@@ -267,13 +268,15 @@ export function CollectionForm() {
                   setForm((prev) => ({ ...prev, collectionDay: event.target.value }))
                 }
               >
-                <option value="">1er día</option>
-                {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+                {Array.from({ length: 15 }, (_, i) => i + 1).map((d) => (
                   <option key={d} value={String(d)}>
                     {d}
                   </option>
                 ))}
               </select>
+            </label>
+            <label className="field">
+              <span>Segunda quincena</span>
               <select
                 required
                 value={form.collectionDay2}
@@ -281,14 +284,17 @@ export function CollectionForm() {
                   setForm((prev) => ({ ...prev, collectionDay2: event.target.value }))
                 }
               >
-                <option value="">2do día</option>
-                {Array.from({ length: 28 }, (_, i) => i + 1).map((d) => (
+                {Array.from({ length: 13 }, (_, i) => i + 16).map((d) => (
                   <option key={d} value={String(d)}>
                     {d}
                   </option>
                 ))}
+                <option value={LAST_MONTH_DAY}>{LAST_MONTH_DAY_LABEL}</option>
               </select>
-            </div>
+              {form.collectionDay2 === LAST_MONTH_DAY ? (
+                <p className="field-note">Se enviará el último día del mes.</p>
+              ) : null}
+            </label>
           </div>
         )}
 
@@ -308,7 +314,11 @@ export function CollectionForm() {
                   {d}
                 </option>
               ))}
+              <option value={LAST_MONTH_DAY}>{LAST_MONTH_DAY_LABEL}</option>
             </select>
+            {form.collectionDay === LAST_MONTH_DAY ? (
+              <p className="field-note">Se enviará el último día del mes.</p>
+            ) : null}
           </label>
         )}
 

@@ -15,6 +15,14 @@ export function formatClientPhone(client) {
   return `${formatPhoneCode(client.phoneCode)} ${client.phoneNumber}`
 }
 
+export function formatCollectionDay(value) {
+  if (!value) return ''
+  return value
+    .split(',')
+    .map((part) => (part.trim().toLowerCase() === 'ultimo' ? 'Último del mes' : part.trim()))
+    .join(', ')
+}
+
 /** Parsea fechas ISO de la API (UTC) para mostrarlas en hora local del navegador. */
 export function parseApiDate(value) {
   if (!value) return null

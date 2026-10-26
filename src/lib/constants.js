@@ -9,6 +9,9 @@ export const PAYMENT_BANKS = [
   { value: 'banco_de_venezuela', label: 'Banco de Venezuela' },
 ]
 
+export const LAST_MONTH_DAY = 'ultimo'
+export const LAST_MONTH_DAY_LABEL = 'Último del mes'
+
 export const clientInitialForm = {
   firstName: '',
   lastName: '',

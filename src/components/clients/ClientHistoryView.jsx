@@ -7,6 +7,7 @@ import { apiRequest, resolveAssetUrl } from '../../lib/api'
 import { subscribeWhatsappStatus } from '../../lib/whatsappStatusSocket'
 import {
   formatClientPhone,
+  formatCollectionDay,
   formatDateTime,
   money,
   sendStatus,
@@ -186,7 +187,11 @@ export function ClientHistoryView() {
               <h2>{collection.concept}</h2>
               <p>
                 {collection.frequency}
-                {collection.collectionDay ? ` · Día ${collection.collectionDay}` : ''}
+                {collection.collectionDay
+                  ? collection.collectionDay.trim().toLowerCase() === 'ultimo'
+                    ? ' · Último del mes'
+                    : ` · Día ${formatCollectionDay(collection.collectionDay)}`
+                  : ''}
               </p>
             </div>
             <dl className="data-card-fields data-card-fields-grid history-summary">

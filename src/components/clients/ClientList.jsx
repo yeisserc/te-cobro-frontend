@@ -4,16 +4,18 @@ import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
 import { formatClientPhone } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
-import { AsyncButton } from '../ui/AsyncButton'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 
 export function ClientList({ showCreateButton = false }) {
   const navigate = useNavigate()
   const { clients, setError, reloadData } = useAppData()
   const [deletingId, setDeletingId] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
   const deletingRef = useRef(false)
 
-  async function handleDeleteClient(clientId) {
-    if (deletingRef.current) return
+  async function handleDeleteClient() {
+    const clientId = pendingDelete?.id
+    if (!clientId || deletingRef.current) return
     deletingRef.current = true
     setDeletingId(clientId)
     setError('')
@@ -25,6 +27,7 @@ export function ClientList({ showCreateButton = false }) {
     } finally {
       deletingRef.current = false
       setDeletingId(null)
+      setPendingDelete(null)
     }
   }
 
@@ -80,15 +83,14 @@ export function ClientList({ showCreateButton = false }) {
               >
                 Editar
               </button>
-              <AsyncButton
+              <button
                 type="button"
                 className="table-btn danger"
-                loading={deletingId === client.id}
                 disabled={Boolean(deletingId)}
-                onClick={() => handleDeleteClient(client.id)}
+                onClick={() => setPendingDelete(client)}
               >
                 Eliminar
-              </AsyncButton>
+              </button>
             </div>
           </article>
         ))}
@@ -125,15 +127,14 @@ export function ClientList({ showCreateButton = false }) {
                     >
                       Editar
                     </button>
-                    <AsyncButton
+                    <button
                       type="button"
                       className="table-btn danger"
-                      loading={deletingId === client.id}
                       disabled={Boolean(deletingId)}
-                      onClick={() => handleDeleteClient(client.id)}
+                      onClick={() => setPendingDelete(client)}
                     >
                       Eliminar
-                    </AsyncButton>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -141,6 +142,20 @@ export function ClientList({ showCreateButton = false }) {
           </tbody>
         </table>
       </div>
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        title="Eliminar cliente"
+        message={
+          pendingDelete
+            ? `Se eliminará a ${pendingDelete.firstName} ${pendingDelete.lastName}. Esta acción no se puede deshacer.`
+            : ''
+        }
+        loading={Boolean(deletingId)}
+        onConfirm={handleDeleteClient}
+        onCancel={() => {
+          if (!deletingRef.current) setPendingDelete(null)
+        }}
+      />
     </section>
   )
 }
