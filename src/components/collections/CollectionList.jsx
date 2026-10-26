@@ -4,17 +4,19 @@ import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
 import { formatCollectionDay, money } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
-import { AsyncButton } from '../ui/AsyncButton'
+import { ConfirmDialog } from '../ui/ConfirmDialog'
 import { CollectionSendActions } from './CollectionSendActions'
 
 export function CollectionList({ showCreateButton = false }) {
   const navigate = useNavigate()
   const { collections, clientNameById, setError, reloadData } = useAppData()
   const [deletingId, setDeletingId] = useState(null)
+  const [pendingDelete, setPendingDelete] = useState(null)
   const deletingRef = useRef(false)
 
-  async function handleDeleteCollection(collectionId) {
-    if (deletingRef.current) return
+  async function handleDeleteCollection() {
+    const collectionId = pendingDelete?.id
+    if (!collectionId || deletingRef.current) return
     deletingRef.current = true
     setDeletingId(collectionId)
     setError('')
@@ -26,6 +28,7 @@ export function CollectionList({ showCreateButton = false }) {
     } finally {
       deletingRef.current = false
       setDeletingId(null)
+      setPendingDelete(null)
     }
   }
 
@@ -87,15 +90,14 @@ export function CollectionList({ showCreateButton = false }) {
               >
                 Editar
               </button>
-              <AsyncButton
+              <button
                 type="button"
                 className="table-btn danger"
-                loading={deletingId === item.id}
                 disabled={Boolean(deletingId)}
-                onClick={() => handleDeleteCollection(item.id)}
+                onClick={() => setPendingDelete(item)}
               >
                 Eliminar
-              </AsyncButton>
+              </button>
             </div>
           </article>
         ))}
@@ -140,15 +142,14 @@ export function CollectionList({ showCreateButton = false }) {
                     >
                       Editar
                     </button>
-                    <AsyncButton
+                    <button
                       type="button"
                       className="table-btn danger"
-                      loading={deletingId === item.id}
                       disabled={Boolean(deletingId)}
-                      onClick={() => handleDeleteCollection(item.id)}
+                      onClick={() => setPendingDelete(item)}
                     >
                       Eliminar
-                    </AsyncButton>
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -156,6 +157,20 @@ export function CollectionList({ showCreateButton = false }) {
           </tbody>
         </table>
       </div>
+      <ConfirmDialog
+        open={Boolean(pendingDelete)}
+        title="Eliminar cobranza"
+        message={
+          pendingDelete
+            ? `Se eliminará la cobranza ${pendingDelete.concept || 'sin concepto'} de ${clientNameById[pendingDelete.clientId] || 'este cliente'}. Esta acción no se puede deshacer.`
+            : ''
+        }
+        loading={Boolean(deletingId)}
+        onConfirm={handleDeleteCollection}
+        onCancel={() => {
+          if (!deletingRef.current) setPendingDelete(null)
+        }}
+      />
     </section>
   )
 }
