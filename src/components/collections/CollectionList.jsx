@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
-import { money } from '../../lib/format'
+import { formatCollectionDay, money } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
 import { AsyncButton } from '../ui/AsyncButton'
 import { CollectionSendActions } from './CollectionSendActions'
@@ -75,7 +75,7 @@ export function CollectionList({ showCreateButton = false }) {
               </div>
               <div>
                 <dt>Día(s)</dt>
-                <dd>{item.collectionDay || '-'}</dd>
+                <dd>{formatCollectionDay(item.collectionDay) || '-'}</dd>
               </div>
             </dl>
             <CollectionSendActions collection={item} />
@@ -127,7 +127,7 @@ export function CollectionList({ showCreateButton = false }) {
                 <td>{item.installments}</td>
                 <td>{item.currentInstallment - 1}</td>
                 <td>{item.frequency}</td>
-                <td>{item.collectionDay || '-'}</td>
+                <td>{formatCollectionDay(item.collectionDay) || '-'}</td>
                 <td>
                   <CollectionSendActions collection={item} />
                 </td>
