@@ -227,13 +227,7 @@ export function ClientHistoryView() {
                         <div className="data-card-header">
                           <div className="data-card-title">
                             <h3>Cuota {send.installmentNumber}</h3>
-                            <p className="data-card-concept send-when">
-                              {formatDateTime(send.sentAt)}
-                              <WhatsappDeliveryStatus
-                                status={send.whatsappStatus}
-                                error={send.whatsappError}
-                              />
-                            </p>
+                            <p className="data-card-concept">{formatDateTime(send.sentAt)}</p>
                           </div>
                           <PaymentStatus status={sendStatus(send)} />
                         </div>
@@ -264,6 +258,13 @@ export function ClientHistoryView() {
                               <ScreenshotList send={send} onOpen={setPreview} />
                             </dd>
                           </div>
+                          <div className="history-whatsapp">
+                            <WhatsappDeliveryStatus
+                              status={send.whatsappStatus}
+                              error={send.whatsappError}
+                              sentAt={send.sentAt}
+                            />
+                          </div>
                         </dl>
                       </article>
                     )
@@ -282,6 +283,7 @@ export function ClientHistoryView() {
                         <th>Referencia</th>
                         <th>Pago</th>
                         <th>Comprobante</th>
+                        <th>WhatsApp</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -290,15 +292,7 @@ export function ClientHistoryView() {
                         return (
                           <tr key={send.id}>
                             <td>{send.installmentNumber}</td>
-                            <td>
-                              <span className="send-when">
-                                {formatDateTime(send.sentAt)}
-                                <WhatsappDeliveryStatus
-                                  status={send.whatsappStatus}
-                                  error={send.whatsappError}
-                                />
-                              </span>
-                            </td>
+                            <td>{formatDateTime(send.sentAt)}</td>
                             <td>{money.format(send.amountUsd)}</td>
                             <td>{Number(send.amountBs).toFixed(2)}</td>
                             <td>
@@ -312,6 +306,13 @@ export function ClientHistoryView() {
                             </td>
                             <td className="screenshot-cell">
                               <ScreenshotList send={send} onOpen={setPreview} />
+                            </td>
+                            <td>
+                              <WhatsappDeliveryStatus
+                                status={send.whatsappStatus}
+                                error={send.whatsappError}
+                                sentAt={send.sentAt}
+                              />
                             </td>
                           </tr>
                         )

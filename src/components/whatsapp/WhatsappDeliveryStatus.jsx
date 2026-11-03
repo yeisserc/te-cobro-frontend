@@ -1,6 +1,8 @@
+import { formatTime } from '../../lib/format'
+
 const LABELS = {
   sent: 'Enviado',
-  delivered: 'Recibido',
+  delivered: 'Entregado',
   read: 'Leído',
   failed: 'No enviado',
 }
@@ -38,15 +40,21 @@ function FailedMark() {
   )
 }
 
-export function WhatsappDeliveryStatus({ status, error }) {
+export function WhatsappDeliveryStatus({ status, error, sentAt }) {
   const normalized =
     status === 'delivered' || status === 'read' || status === 'failed' ? status : 'sent'
-  const label =
+  const detail =
     normalized === 'failed' && error ? `${LABELS.failed}: ${error}` : LABELS[normalized]
+  const time = formatTime(sentAt)
+  const text = normalized === 'failed' ? LABELS.failed : 'Enviado'
+  const caption = time ? `${text} ${time}` : text
 
   return (
-    <span className={`wa-ticks wa-ticks-${normalized}`} title={label} aria-label={label}>
-      {normalized === 'failed' ? <FailedMark /> : normalized === 'sent' ? <SingleCheck /> : <DoubleCheck />}
+    <span className="wa-delivery" title={detail} aria-label={`${caption}. ${detail}`}>
+      <span>{caption}</span>
+      <span className={`wa-ticks wa-ticks-${normalized}`} aria-hidden="true">
+        {normalized === 'failed' ? <FailedMark /> : normalized === 'sent' ? <SingleCheck /> : <DoubleCheck />}
+      </span>
     </span>
   )
 }
