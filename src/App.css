@@ -575,8 +575,13 @@ a.btn-ghost {
   margin-bottom: 0.25rem;
 }
 
-.history-proof {
+.history-proof,
+.history-whatsapp {
   grid-column: 1 / -1;
+}
+
+.history-whatsapp {
+  margin-top: 0.15rem;
 }
 
 .screenshot-list {
@@ -719,11 +724,14 @@ td.screenshot-cell {
   color: #667085;
 }
 
-.send-when {
+.wa-delivery {
   display: inline-flex;
   align-items: center;
-  gap: 0.28rem;
-  flex-wrap: wrap;
+  gap: 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .wa-ticks {

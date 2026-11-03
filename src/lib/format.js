@@ -53,6 +53,16 @@ export function formatDateTime(value) {
   })
 }
 
+export function formatTime(value) {
+  const date = parseApiDate(value)
+  if (!date || Number.isNaN(date.getTime())) return ''
+
+  return date.toLocaleTimeString('es-VE', {
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 export function paymentStatusLabel(status) {
   if (status === 'verified') return 'Pago verificado'
   if (status === 'rejected') return 'Pago rechazado'
