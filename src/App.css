@@ -661,35 +661,62 @@ td.screenshot-cell {
   white-space: normal;
 }
 
-.status-chip {
+.pay-status {
   display: inline-flex;
   align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
   border-radius: 999px;
-  padding: 0.22rem 0.6rem;
-  font-size: 0.72rem;
+  padding: 0.38rem 0.7rem 0.38rem 0.5rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+.data-card-header .pay-status {
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+
+.pay-status svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: 0 0 auto;
+}
+
+.pay-status-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.pay-status-label {
+  font-size: 0.78rem;
   white-space: nowrap;
 }
 
-.status-chip.status-verified {
-  background: var(--accent-soft);
-  color: var(--accent-strong);
+.pay-status-hint {
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
-.status-chip.status-pending {
-  background: #fff6e5;
-  color: #8a5a00;
+.pay-status-verified {
+  background: #e7f7ee;
+  color: #178a45;
 }
 
-.status-chip.status-rejected {
-  background: var(--danger-bg);
-  color: var(--danger);
+.pay-status-pending {
+  background: #fff4d4;
+  color: #a16207;
 }
 
-.status-chip.status-sent {
-  background: var(--surface-3);
-  color: var(--ink-soft);
+.pay-status-rejected {
+  background: #fde8e8;
+  color: #d92d20;
+}
+
+.pay-status-sent {
+  background: #eef1f4;
+  color: #667085;
 }
 
 .send-when {

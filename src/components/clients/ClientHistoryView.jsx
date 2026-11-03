@@ -11,10 +11,10 @@ import {
   formatDateTime,
   money,
   sendStatus,
-  sendStatusLabel,
 } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
 import { IconBack } from '../icons/NavIcons'
+import { PaymentStatus } from './PaymentStatus'
 import { WhatsappDeliveryStatus } from '../whatsapp/WhatsappDeliveryStatus'
 
 function sendScreenshots(send) {
@@ -235,9 +235,7 @@ export function ClientHistoryView() {
                               />
                             </p>
                           </div>
-                          <span className={`status-chip status-${sendStatus(send)}`}>
-                            {sendStatusLabel(send)}
-                          </span>
+                          <PaymentStatus status={sendStatus(send)} />
                         </div>
                         <dl className="data-card-fields data-card-fields-grid">
                           <div>
@@ -304,9 +302,7 @@ export function ClientHistoryView() {
                             <td>{money.format(send.amountUsd)}</td>
                             <td>{Number(send.amountBs).toFixed(2)}</td>
                             <td>
-                              <span className={`status-chip status-${sendStatus(send)}`}>
-                                {sendStatusLabel(send)}
-                              </span>
+                              <PaymentStatus status={sendStatus(send)} />
                             </td>
                             <td>{latestPayment?.referenceNumber || '-'}</td>
                             <td>

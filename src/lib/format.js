@@ -54,9 +54,9 @@ export function formatDateTime(value) {
 }
 
 export function paymentStatusLabel(status) {
-  if (status === 'verified') return 'Verificado'
-  if (status === 'rejected') return 'Rechazado'
-  if (status === 'pending') return 'Pendiente'
+  if (status === 'verified') return 'Pago verificado'
+  if (status === 'rejected') return 'Pago rechazado'
+  if (status === 'pending') return 'Pago recibido'
   return status || 'Sin pago'
 }
 
@@ -67,5 +67,5 @@ export function sendStatus(send) {
 
 export function sendStatusLabel(send) {
   const latest = send.payments?.[0]
-  return latest ? paymentStatusLabel(latest.status) : 'Enviado'
+  return latest ? paymentStatusLabel(latest.status) : 'Cobro enviado'
 }
