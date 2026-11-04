@@ -3,7 +3,8 @@ import { createPortal } from 'react-dom'
 import { Link, useParams } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
 import { useAuth } from '../../context/AuthContext'
-import { apiRequest, resolveAssetUrl } from '../../lib/api'
+import { API_URL } from '../../lib/constants'
+import { apiRequest } from '../../lib/api'
 import { subscribeWhatsappStatus } from '../../lib/whatsappStatusSocket'
 import {
   formatClientPhone,
@@ -17,11 +18,16 @@ import { IconBack } from '../icons/NavIcons'
 import { PaymentStatus } from './PaymentStatus'
 import { WhatsappDeliveryStatus } from '../whatsapp/WhatsappDeliveryStatus'
 
+function paymentScreenshotSrc(paymentId) {
+  const base = String(API_URL || '').replace(/\/$/, '')
+  return `${base}/payments/${paymentId}/screenshot`
+}
+
 function sendScreenshots(send) {
   return (send.payments ?? [])
     .map((payment) => ({
       id: payment.id,
-      src: resolveAssetUrl(payment.screenshotUrl),
+      src: payment.screenshotUrl ? paymentScreenshotSrc(payment.id) : null,
       alt: `Comprobante de la cuota ${send.installmentNumber}`,
     }))
     .filter((item) => item.src)
