@@ -8,6 +8,7 @@ import BankPage from '../pages/BankPage'
 import ClientFormPage from '../pages/ClientFormPage'
 import ClientHistoryPage from '../pages/ClientHistoryPage'
 import CollectionFormPage from '../pages/CollectionFormPage'
+import HomePage from '../pages/HomePage'
 import LoginPage from '../pages/LoginPage'
 
 export default function AppRoutes() {
@@ -23,6 +24,7 @@ export default function AppRoutes() {
         }
       >
         <Route path="/" element={<Navigate to={ROUTES.home} replace />} />
+        <Route path={ROUTES.home} element={<HomePage />} />
 
         <Route path={ROUTES.clients} element={<ClientsLayout />}>
           <Route path="new" element={<ClientFormPage />} />

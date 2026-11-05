@@ -1,6 +1,6 @@
 export const ROUTES = {
   login: '/login',
-  home: '/clients',
+  home: '/inicio',
   clients: '/clients',
   clientsNew: '/clients/new',
   clientEdit: (clientId) => `/clients/${clientId}/edit`,

@@ -92,6 +92,8 @@ function AppLayout() {
   const { clients, collections, totalCurrentDebt, error, success } = useAppData()
   const { pathname } = useLocation()
 
+  const isHome = pathname === ROUTES.home
+
   const { title, hint, stats } = getSectionMeta(
     pathname,
     clients.length,
@@ -117,22 +119,24 @@ function AppLayout() {
           </div>
         </header>
 
-        <section className="page-intro">
-          <div>
-            <h1>{title}</h1>
-            <p>{hint}</p>
-          </div>
-          {stats ? (
-            <div className="intro-meta">
-              {stats.map((stat) => (
-                <div key={stat.label} className="meta-stat">
-                  <span className="meta-label">{stat.label}</span>
-                  <strong className={stat.accent ? 'accent-value' : undefined}>{stat.value}</strong>
-                </div>
-              ))}
+        {isHome ? null : (
+          <section className="page-intro">
+            <div>
+              <h1>{title}</h1>
+              <p>{hint}</p>
             </div>
-          ) : null}
-        </section>
+            {stats ? (
+              <div className="intro-meta">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="meta-stat">
+                    <span className="meta-label">{stat.label}</span>
+                    <strong className={stat.accent ? 'accent-value' : undefined}>{stat.value}</strong>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </section>
+        )}
 
         <ErrorBanner message={error} />
         <SuccessBanner message={success} />
