@@ -40,7 +40,7 @@ function FailedMark() {
   )
 }
 
-export function WhatsappDeliveryStatus({ status, error, sentAt }) {
+export function WhatsappDeliveryStatus({ status, error, sentAt, ticksOnly = false }) {
   const normalized =
     status === 'delivered' || status === 'read' || status === 'failed' ? status : 'sent'
   const detail =
@@ -51,7 +51,7 @@ export function WhatsappDeliveryStatus({ status, error, sentAt }) {
 
   return (
     <span className="wa-delivery" title={detail} aria-label={`${caption}. ${detail}`}>
-      <span>{caption}</span>
+      {ticksOnly ? null : <span>{caption}</span>}
       <span className={`wa-ticks wa-ticks-${normalized}`} aria-hidden="true">
         {normalized === 'failed' ? <FailedMark /> : normalized === 'sent' ? <SingleCheck /> : <DoubleCheck />}
       </span>
