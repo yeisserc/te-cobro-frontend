@@ -75,10 +75,6 @@ export function CollectionList({ showCreateButton = false }) {
   const deletingRef = useRef(false)
 
   const activeCollections = useMemo(() => collections.filter(isActiveCollection), [collections])
-  const paymentsUpToDate = useMemo(
-    () => collections.reduce((sum, collection) => sum + paidInstallments(collection), 0),
-    [collections],
-  )
   const normalizedQuery = query.trim().toLowerCase()
   const visible = collections.filter((collection) => {
     if (!normalizedQuery) return true
@@ -108,7 +104,7 @@ export function CollectionList({ showCreateButton = false }) {
   return (
     <div className="client-directory">
       {showCreateButton ? (
-        <section className="client-stats">
+        <section className="client-stats client-stats-pair">
           <article className="home-card client-stat">
             <span className="client-stat-icon blue" aria-hidden="true">
               <IconCollections />
@@ -125,15 +121,6 @@ export function CollectionList({ showCreateButton = false }) {
             <span>
               <small>Deuda activa</small>
               <strong>{money.format(totalCurrentDebt)}</strong>
-            </span>
-          </article>
-          <article className="home-card client-stat">
-            <span className="client-stat-icon purple" aria-hidden="true">
-              <IconCalendar />
-            </span>
-            <span>
-              <small>Pagos al día</small>
-              <strong>{paymentsUpToDate}</strong>
             </span>
           </article>
         </section>
