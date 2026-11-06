@@ -1,6 +1,9 @@
 .app-root {
-  min-height: 100vh;
-  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .header-actions {
@@ -24,16 +27,18 @@
 }
 
 .auth-shell {
+  flex: 1 1 auto;
   width: min(420px, 100%);
+  min-height: 0;
   margin: 0 auto;
   padding: max(2.5rem, env(safe-area-inset-top)) 1.15rem
     max(2rem, env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: safe center;
   gap: 1.75rem;
-  min-height: 100vh;
-  min-height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   animation: rise-in 480ms ease both;
 }
 
@@ -95,10 +100,16 @@
 }
 
 .app-shell {
+  flex: 1 1 auto;
   width: min(1120px, 100%);
+  min-height: 0;
   margin: 0 auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
   padding: max(0.9rem, env(safe-area-inset-top)) max(0.9rem, env(safe-area-inset-right))
-    calc(var(--bottom-nav-h) + 1.4rem + env(safe-area-inset-bottom))
+    1.25rem
     max(0.9rem, env(safe-area-inset-left));
 }
 
@@ -987,10 +998,8 @@ tbody tr:hover {
 
 /* —— Bottom navigation (mobile) —— */
 .bottom-nav {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+  flex: 0 0 auto;
   z-index: 40;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1068,7 +1077,7 @@ tbody tr:hover {
 @media (min-width: 640px) {
   .app-shell {
     width: min(1120px, 96vw);
-    padding: 1.35rem 0 calc(var(--bottom-nav-h) + 1.6rem + env(safe-area-inset-bottom));
+    padding: 1.35rem 0 1.5rem;
   }
 
   .page-intro {
