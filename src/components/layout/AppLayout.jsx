@@ -6,9 +6,12 @@ import { APP_NAME } from '../../lib/constants'
 import {
   ROUTES,
   isClientHistoryRoute,
+  isClientListRoute,
   isCollectionFormRoute,
+  isCollectionListRoute,
 } from '../../lib/routes'
 import { ErrorBanner, SuccessBanner } from '../ui/Banners'
+import { IconClients, IconCollections } from '../icons/NavIcons'
 import { BottomNav, TopNav } from './Navigation'
 
 function getSectionMeta(pathname, clientsCount, collectionsCount, totalCurrentDebt, hasBankAccount) {
@@ -63,7 +66,7 @@ function getSectionMeta(pathname, clientsCount, collectionsCount, totalCurrentDe
       }
     }
     return {
-      title: 'Cobranza',
+        title: 'Cobranzas',
       hint: 'Controla deudas, cuotas y frecuencias de cobro.',
       stats: [
         { label: 'Cobranzas', value: collectionsCount },
@@ -93,6 +96,8 @@ function AppLayout() {
   const { pathname } = useLocation()
 
   const isHome = pathname === ROUTES.home
+  const isClientList = isClientListRoute(pathname)
+  const isCollectionList = isCollectionListRoute(pathname)
 
   const { title, hint, stats } = getSectionMeta(
     pathname,
@@ -122,10 +127,22 @@ function AppLayout() {
         {isHome ? null : (
           <section className="page-intro">
             <div>
-              <h1>{title}</h1>
+              <h1 className={isClientList || isCollectionList ? 'page-title-with-icon' : undefined}>
+                {isClientList ? (
+                  <span className="page-title-icon" aria-hidden="true">
+                    <IconClients className="nav-icon" />
+                  </span>
+                ) : null}
+                {isCollectionList ? (
+                  <span className="page-title-icon blue" aria-hidden="true">
+                    <IconCollections className="nav-icon" />
+                  </span>
+                ) : null}
+                {title}
+              </h1>
               <p>{hint}</p>
             </div>
-            {stats ? (
+            {stats && !isClientList && !isCollectionList ? (
               <div className="intro-meta">
                 {stats.map((stat) => (
                   <div key={stat.label} className="meta-stat">

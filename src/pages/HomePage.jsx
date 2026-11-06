@@ -268,6 +268,8 @@ function ReadyHome({ home, sending, onSend, navigate }) {
 }
 
 function ActiveHome({ home, menuOpen, onOpenMenu }) {
+  const rejectedAttention = home.attention.filter((item) => item.status === 'rejected')
+
   return (
     <>
       <Link to={ROUTES.bank} className="home-link-card">
@@ -296,17 +298,17 @@ function ActiveHome({ home, menuOpen, onOpenMenu }) {
       <section className="home-card">
         <div className="home-card-head">
           <h3>Requieren tu atención</h3>
-          {home.attention.length ? <span className="home-count">{home.attention.length}</span> : null}
+          {rejectedAttention.length ? <span className="home-count">{rejectedAttention.length}</span> : null}
         </div>
-        {home.attention.length === 0 ? (
-          <p className="home-muted">No hay pagos pendientes ni rechazados.</p>
+        {rejectedAttention.length === 0 ? (
+          <p className="home-muted">No hay pagos rechazados.</p>
         ) : (
           <ul className="home-rows">
-            {home.attention.map((item) => (
+            {rejectedAttention.map((item) => (
               <li key={item.id}>
                 <Link to={ROUTES.clientHistory(item.clientId)}>
-                  <span className={`home-attention-icon ${item.status}`} aria-hidden="true">
-                    {item.status === 'rejected' ? '×' : '◷'}
+                  <span className="home-attention-icon rejected" aria-hidden="true">
+                    ×
                   </span>
                   <span className="home-row-copy">
                     <strong>{item.clientName}</strong>
@@ -314,9 +316,7 @@ function ActiveHome({ home, menuOpen, onOpenMenu }) {
                       {item.detail} · {money.format(item.amountUsd)}
                     </small>
                   </span>
-                  <em className={item.status === 'rejected' ? 'rejected' : 'pending'}>
-                    {item.status === 'rejected' ? 'Pago rechazado' : 'Pendiente de verificación'}
-                  </em>
+                  <em className="rejected">Pago rechazado</em>
                   <span className="home-chevron">›</span>
                 </Link>
               </li>
