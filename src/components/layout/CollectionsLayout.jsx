@@ -1,26 +1,11 @@
 import { useEffect } from 'react'
-import { Link, Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
 import {
-  ROUTES,
   isCollectionFormRoute,
   isCollectionListRoute,
 } from '../../lib/routes'
 import { CollectionList } from '../collections/CollectionList'
-
-function DesktopCreatePanel({ title, hint, to, label }) {
-  return (
-    <section className="panel desktop-only">
-      <div className="panel-head">
-        <h2>{title}</h2>
-        <p>{hint}</p>
-      </div>
-      <Link to={to} className="btn-primary">
-        {label}
-      </Link>
-    </section>
-  )
-}
 
 export function CollectionsLayout() {
   const { pathname } = useLocation()
@@ -48,13 +33,7 @@ export function CollectionsLayout() {
 
   if (isCollectionListRoute(pathname)) {
     return (
-      <div className="workspace workspace-list-only">
-        <DesktopCreatePanel
-          title="Nueva cobranza"
-          hint="Asigna una deuda y define cómo se cobrará."
-          to={ROUTES.collectionsNew}
-          label="Crear cobranza"
-        />
+      <div className="workspace workspace-stack">
         <CollectionList showCreateButton />
       </div>
     )
