@@ -1836,6 +1836,7 @@ tbody tr:hover {
   gap: 0.55rem;
   min-width: 0;
   padding: 0.7rem;
+  overflow: hidden;
 }
 
 .client-stat-icon {
@@ -1864,19 +1865,51 @@ tbody tr:hover {
 
 .client-stat > span {
   min-width: 0;
+  max-width: 100%;
 }
 
 .client-stat small {
   display: block;
   font-size: 0.72rem;
   font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: break-word;
 }
 
 .client-stat strong {
   display: block;
+  max-width: 100%;
   font-family: var(--font-body);
   font-size: 0.95rem;
+  line-height: 1.2;
   white-space: nowrap;
+}
+
+@media (max-width: 639px) {
+  .client-stats {
+    gap: 0.4rem;
+  }
+
+  .client-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.4rem;
+    padding: 0.55rem 0.45rem;
+  }
+
+  .client-stat-icon {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .client-stat small {
+    font-size: 0.68rem;
+  }
+
+  .client-stat strong {
+    font-size: 0.78rem;
+  }
 }
 
 .client-list-head {
