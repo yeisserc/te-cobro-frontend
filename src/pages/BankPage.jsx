@@ -4,6 +4,7 @@ import { useAppData } from '../context/AppDataContext'
 import { apiRequest } from '../lib/api'
 import { PAYMENT_BANKS } from '../lib/constants'
 import { AsyncButton } from '../components/ui/AsyncButton'
+import { PasswordInput } from '../components/ui/PasswordInput'
 import { useAsyncAction } from '../components/ui/useAsyncAction'
 
 export default function BankPage() {
@@ -164,9 +165,8 @@ export default function BankPage() {
 
               <label className="field">
                 <span>Contraseña del banco</span>
-                <input
+                <PasswordInput
                   required
-                  type="password"
                   autoComplete="current-password"
                   placeholder={
                     currentUser.hasBankAccount

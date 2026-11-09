@@ -6,6 +6,7 @@ import { APP_NAME } from '../lib/constants'
 import { ROUTES } from '../lib/routes'
 import { ErrorBanner } from '../components/ui/Banners'
 import { AsyncButton } from '../components/ui/AsyncButton'
+import { PasswordInput } from '../components/ui/PasswordInput'
 import { useAsyncAction } from '../components/ui/useAsyncAction'
 
 export default function LoginPage() {
@@ -78,8 +79,7 @@ export default function LoginPage() {
 
             <label className="field">
               <span>Contraseña</span>
-              <input
-                type="password"
+              <PasswordInput
                 autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
                 required
                 minLength={6}
