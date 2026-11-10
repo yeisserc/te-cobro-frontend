@@ -50,7 +50,7 @@ export function AppDataProvider({ children }) {
 
   const clientNameById = useMemo(() => {
     return clients.reduce((acc, client) => {
-      acc[client.id] = `${client.firstName} ${client.lastName}`.trim()
+      acc[client.id] = `${client.firstName} ${client.lastName ?? ''}`.trim()
       return acc
     }, {})
   }, [clients])

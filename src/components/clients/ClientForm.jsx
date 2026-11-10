@@ -30,7 +30,7 @@ export function ClientForm() {
 
     setForm({
       firstName: client.firstName,
-      lastName: client.lastName,
+      lastName: client.lastName ?? '',
       nickname: client.nickname || '',
       phoneCode: formatPhoneCode(client.phoneCode),
       phoneNumber: client.phoneNumber || '',
@@ -44,7 +44,7 @@ export function ClientForm() {
     const payload = {
       userId: currentUser.id,
       firstName: form.firstName.trim(),
-      lastName: form.lastName.trim(),
+      lastName: (form.lastName ?? '').trim(),
       nickname: form.nickname.trim(),
       phoneCode: form.phoneCode.trim(),
       phoneNumber: form.phoneNumber.trim(),
@@ -102,9 +102,8 @@ export function ClientForm() {
           <label className="field">
             <span>Apellido</span>
             <input
-              required
-              placeholder="Apellido"
-              value={form.lastName}
+              placeholder="Opcional"
+              value={form.lastName ?? ''}
               onChange={(event) => setForm((prev) => ({ ...prev, lastName: event.target.value }))}
             />
           </label>

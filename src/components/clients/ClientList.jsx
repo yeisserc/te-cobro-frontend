@@ -31,7 +31,7 @@ function isActiveCollection(collection) {
 }
 
 function clientName(client) {
-  return `${client.firstName} ${client.lastName}`.trim()
+  return `${client.firstName} ${client.lastName ?? ''}`.trim()
 }
 
 function IconPhone() {
@@ -237,7 +237,7 @@ export function ClientList({ showCreateButton = false }) {
         title="Eliminar cliente"
         message={
           pendingDelete
-            ? `Se eliminará a ${pendingDelete.firstName} ${pendingDelete.lastName}. Esta acción no se puede deshacer.`
+            ? `Se eliminará a ${clientName(pendingDelete)}. Esta acción no se puede deshacer.`
             : ''
         }
         loading={Boolean(deletingId)}

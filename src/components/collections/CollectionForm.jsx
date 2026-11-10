@@ -129,7 +129,7 @@ export function CollectionForm() {
             </option>
             {clients.map((client) => (
               <option key={client.id} value={client.id}>
-                {client.firstName} {client.lastName}
+                {`${client.firstName} ${client.lastName ?? ''}`.trim()}
               </option>
             ))}
           </select>
