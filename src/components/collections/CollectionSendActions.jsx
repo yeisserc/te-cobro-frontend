@@ -1,6 +1,6 @@
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
-import { money } from '../../lib/format'
+import { money, skippedInstallmentList } from '../../lib/format'
 import { AsyncButton } from '../ui/AsyncButton'
 import { useAsyncAction } from '../ui/useAsyncAction'
 
@@ -14,7 +14,10 @@ function canSendCollection(collection) {
 export function CollectionSendActions({ collection }) {
   const { setError, setSuccess } = useAppData()
   const [sending, runSend] = useAsyncAction()
-  const canSend = canSendCollection(collection)
+  const currentSkipped = skippedInstallmentList(collection.skippedInstallments).includes(
+    Number(collection.currentInstallment),
+  )
+  const canSend = canSendCollection(collection) && !currentSkipped
 
   async function handleSendCharge() {
     setError('')
@@ -44,7 +47,7 @@ export function CollectionSendActions({ collection }) {
         loading={sending}
         onClick={handleSendCharge}
       >
-        Enviar cobro
+        {currentSkipped ? 'Cuota sin cobro' : 'Enviar cobro'}
       </AsyncButton>
     </div>
   )

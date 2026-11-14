@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
 import { LAST_MONTH_DAY, LAST_MONTH_DAY_LABEL, collectionInitialForm } from '../../lib/constants'
+import { skippedInstallmentList } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
 import { IconBack } from '../icons/NavIcons'
 import { AsyncButton } from '../ui/AsyncButton'
@@ -40,6 +41,7 @@ export function CollectionForm() {
       collectionDay: parts[0] || '',
       collectionDay2: parts[1] || '',
       concept: collection.concept || '',
+      skippedInstallments: skippedInstallmentList(collection.skippedInstallments),
     })
   }, [collectionId, collections, isEditing])
 
@@ -66,6 +68,7 @@ export function CollectionForm() {
           frequency: freq,
           collectionDay,
           concept: form.concept.trim(),
+          skippedInstallments: form.skippedInstallments,
         }
       : {
           userId: currentUser.id,
@@ -75,6 +78,7 @@ export function CollectionForm() {
           frequency: freq,
           collectionDay,
           concept: form.concept.trim(),
+          skippedInstallments: form.skippedInstallments,
         }
 
     await runSave(async () => {
@@ -167,9 +171,17 @@ export function CollectionForm() {
               inputMode="numeric"
               placeholder="1"
               value={form.installments}
-              onChange={(event) =>
-                setForm((prev) => ({ ...prev, installments: event.target.value }))
-              }
+              onChange={(event) => {
+                const installments = event.target.value
+                const max = Number(installments)
+                setForm((prev) => ({
+                  ...prev,
+                  installments,
+                  skippedInstallments: prev.skippedInstallments.filter(
+                    (item) => Number.isInteger(max) && item <= max,
+                  ),
+                }))
+              }}
             />
           </label>
         </div>
@@ -297,6 +309,37 @@ export function CollectionForm() {
             </label>
           </div>
         )}
+
+        {Number(form.installments) > 0 ? (
+          <fieldset className="field">
+            <legend>Cuotas que no se cobran</legend>
+            <p className="field-note">
+              En esas cuotas no se envía el cobro. El día de cobro la deuda baja sola y se pasa a la siguiente.
+            </p>
+            <div className="skip-installments">
+              {Array.from({ length: Number(form.installments) }, (_, index) => index + 1).map((installment) => (
+                <label key={installment}>
+                  <input
+                    type="checkbox"
+                    checked={form.skippedInstallments.includes(installment)}
+                    onChange={(event) => {
+                      setForm((prev) => {
+                        const selected = new Set(prev.skippedInstallments)
+                        if (event.target.checked) selected.add(installment)
+                        else selected.delete(installment)
+                        return {
+                          ...prev,
+                          skippedInstallments: [...selected].sort((left, right) => left - right),
+                        }
+                      })
+                    }}
+                  />
+                  Cuota {installment}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
 
         {form.frequency === 'Mensual' && (
           <label className="field">

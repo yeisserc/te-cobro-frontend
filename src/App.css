@@ -300,11 +300,33 @@
   min-width: 0;
 }
 
-.field > span {
+.field > span,
+fieldset.field > legend {
   font-size: 0.78rem;
   font-weight: 700;
   color: var(--ink-soft);
   letter-spacing: 0.01em;
+}
+
+fieldset.field {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.skip-installments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.9rem;
+  margin-top: 0.35rem;
+}
+
+.skip-installments label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.92rem;
 }
 
 .field-note {

@@ -226,21 +226,31 @@ function ReadyHome({ home, sending, onSend, navigate }) {
               </p>
             </div>
           </div>
-          <p className="home-schedule">
-            <span aria-hidden="true">📅</span>
-            Se enviará el {shortMonth(next.chargeDate)} a las {next.sendTimeLabel}
-          </p>
-          <div className="home-schedule-row">
-            <span>Recordatorio: {shortMonth(next.reminderDate)}</span>
-            <span>Cobro: {shortMonth(next.chargeDate)}</span>
-          </div>
+          {next.chargeSkipped ? (
+            <p className="home-schedule">
+              La cuota {next.installmentNumber} no se cobra. Ese día la deuda baja sola y no se envía WhatsApp.
+            </p>
+          ) : (
+            <>
+              <p className="home-schedule">
+                <span aria-hidden="true">📅</span>
+                Se enviará el {shortMonth(next.chargeDate)} a las {next.sendTimeLabel}
+              </p>
+              <div className="home-schedule-row">
+                <span>Recordatorio: {shortMonth(next.reminderDate)}</span>
+                <span>Cobro: {shortMonth(next.chargeDate)}</span>
+              </div>
+            </>
+          )}
           <div className="home-actions">
             <button type="button" className="home-btn primary" onClick={() => navigate(ROUTES.collectionEdit(next.collectionId))}>
               Ver cobranza
             </button>
-            <AsyncButton className="home-btn secondary" loading={sending} onClick={() => onSend(next.collectionId)}>
-              Enviar ahora
-            </AsyncButton>
+            {next.chargeSkipped ? null : (
+              <AsyncButton className="home-btn secondary" loading={sending} onClick={() => onSend(next.collectionId)}>
+                Enviar ahora
+              </AsyncButton>
+            )}
           </div>
         </section>
       ) : null}

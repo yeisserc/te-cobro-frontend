@@ -15,6 +15,16 @@ export function formatClientPhone(client) {
   return `${formatPhoneCode(client.phoneCode)} ${client.phoneNumber}`
 }
 
+export function skippedInstallmentList(value) {
+  if (Array.isArray(value)) {
+    return value.map(Number).filter((item) => Number.isInteger(item) && item > 0)
+  }
+  return String(value || '')
+    .split(',')
+    .map((part) => Number(part.trim()))
+    .filter((item) => Number.isInteger(item) && item > 0)
+}
+
 export function formatCollectionDay(value) {
   if (!value) return ''
   return value
