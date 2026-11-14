@@ -28,4 +28,5 @@ export const collectionInitialForm = {
   collectionDay: '',
   collectionDay2: '',
   concept: '',
+  skippedInstallments: [],
 }

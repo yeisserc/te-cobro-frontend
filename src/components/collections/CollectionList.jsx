@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppData } from '../../context/AppDataContext'
 import { apiRequest } from '../../lib/api'
-import { formatCollectionDay, money } from '../../lib/format'
+import { formatCollectionDay, money, skippedInstallmentList } from '../../lib/format'
 import { ROUTES } from '../../lib/routes'
 import { IconCollections } from '../icons/NavIcons'
 import { ConfirmDialog } from '../ui/ConfirmDialog'
@@ -168,6 +168,7 @@ export function CollectionList({ showCreateButton = false }) {
             {visible.map((collection) => {
               const name = clientNameById[collection.clientId] || 'Cliente eliminado'
               const paid = paidInstallments(collection)
+              const skipped = skippedInstallmentList(collection.skippedInstallments)
               return (
                 <li key={collection.id}>
                   <article className="client-row">
@@ -181,7 +182,10 @@ export function CollectionList({ showCreateButton = false }) {
                       </span>
                       <span className="home-row-copy">
                         <strong>{name}</strong>
-                        <small>{collection.concept || '-'}</small>
+                        <small>
+                          {collection.concept || '-'}
+                          {skipped.length > 0 ? ` · Sin cobro: ${skipped.join(', ')}` : ''}
+                        </small>
                       </span>
                       <em className="frequency">{collection.frequency}</em>
                       <span className="home-chevron" aria-hidden="true">›</span>
