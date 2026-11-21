@@ -11,7 +11,7 @@ import { useAsyncAction } from '../components/ui/useAsyncAction'
 
 export default function LoginPage() {
   const { currentUser, persistUser } = useAuth()
-  const [authMode, setAuthMode] = useState('register')
+  const [authMode, setAuthMode] = useState('login')
   const [authForm, setAuthForm] = useState({ email: '', password: '' })
   const [authLoading, runAuth] = useAsyncAction()
   const [error, setError] = useState('')

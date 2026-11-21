@@ -38,6 +38,7 @@
 
 html {
   height: 100%;
+  height: var(--app-height, 100%);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -45,12 +46,14 @@ html {
 body {
   margin: 0;
   height: 100%;
+  height: var(--app-height, 100%);
   background: var(--bg);
   overflow: hidden;
 }
 
 #root {
   height: 100%;
+  height: var(--app-height, 100%);
 }
 
 input,

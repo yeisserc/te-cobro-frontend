@@ -170,7 +170,7 @@ export default function BankPage() {
                   autoComplete="current-password"
                   placeholder={
                     currentUser.hasBankAccount
-                      ? 'Ingresa la contraseña para actualizarla'
+                      ? 'Escríbela para actualizarla'
                       : 'Contraseña de banca en línea'
                   }
                   value={bankForm.bankPassword}

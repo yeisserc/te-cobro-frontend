@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  height: var(--app-height, 100%);
+  max-height: var(--app-height, 100%);
   min-height: 0;
   overflow: hidden;
 }
@@ -111,6 +113,28 @@
   padding: max(0.9rem, env(safe-area-inset-top)) max(0.9rem, env(safe-area-inset-right))
     1.25rem
     max(0.9rem, env(safe-area-inset-left));
+}
+
+html.keyboard-open .bottom-nav {
+  display: none;
+}
+
+html.keyboard-open .app-shell {
+  padding-bottom: 1.75rem;
+}
+
+html.keyboard-open .auth-shell {
+  justify-content: flex-start;
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}
+
+.form-grid input,
+.form-grid select,
+.form-grid textarea,
+.form-grid .btn-primary,
+.form-grid .actions-row {
+  scroll-margin-bottom: 1.25rem;
+  scroll-margin-top: 1rem;
 }
 
 /* —— Header / brand —— */
@@ -343,8 +367,21 @@ fieldset.field {
   min-width: 0;
 }
 
-.password-field input {
-  padding-right: 2.75rem;
+.password-field input,
+.form-grid .password-field input {
+  padding-right: 2.85rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+.password-field input::placeholder,
+.form-grid .password-field input::placeholder {
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: normal;
+  opacity: 1;
+  color: #93a39d;
 }
 
 .password-toggle {
